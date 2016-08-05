@@ -1,0 +1,19 @@
+curl 'esearch01q-am-tor03.almcluster.com:9200/_search?pretty=true' -d '
+{
+  query: {
+    bool: {
+      must: [
+        {
+          match: {
+            relationshipStatus: "Attached"
+          }
+        },
+        {
+          match: {
+            gender: "male"
+          }
+        }
+      ]
+    }
+  }
+}'
