@@ -1,0 +1,11 @@
+{
+  "size": 0,
+  "from": 100,
+  "aggs": {
+    "popular_cities": {
+      "terms": {
+        "field": "locations.city"
+      }
+    }
+  }
+}

@@ -1,38 +1,28 @@
 package com.rubylife.examples.autosuggest;
 
-public class City {
-	private String url;
-	private String description;
-	private String title;
+import java.io.Serializable;
 
-	public String getUrl() {
-		return url;
+public class City  implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private String name;
+
+	private int profileCount;
+
+	public int getProfileCount() {
+		return profileCount;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setProfileCount(int profileCount) {
+		this.profileCount = profileCount;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getName() {
+		return name;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setName(String name) {
+		this.name = name;
 	}
-
-	public String getTitle() {
-		return title;
-	}
-
-    /**
-     * @param title
-     */
-    protected void setTitle(String title) {
-		this.title = title;
-	}
-
-
-
 
 }

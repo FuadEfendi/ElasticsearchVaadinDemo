@@ -1,0 +1,10 @@
+{
+  "size": 0,
+  "aggs": {
+    "distinct_cities": {
+      "cardinality": {
+        "field": "locations.city"
+      }
+    }
+  }
+}

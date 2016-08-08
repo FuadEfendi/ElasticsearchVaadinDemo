@@ -72,5 +72,7 @@ public class BookExampleLibrary {
             new ExampleCtgr("autosuggest", "Autosuggest"),
             new ExampleCtgr("autosuggest.city-", "Example City Autosuggest"),
             new BookExample("autosuggest.city.basic", "Basic City Autosuggest", AutosuggestExample.class),
+            new BookExample("autosuggest.city.basicCityList", "City Profiles Count", AutosuggestExample.class),
+
         };
 }
