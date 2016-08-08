@@ -100,7 +100,7 @@ public class AbstractExampleMenu extends CustomComponent {
                             // Have caption only in the beginning of the listings
                             String listingCaption = fragmentNum == 0? "Source Code" : "";
                             
-                            String srcurl = "https://github.com/vaadin/book-examples/tree/master/src" + fragment.getSrcName();
+                            String srcurl = "https://github.com/FuadEfendi/ElasticsearchVaadinDemo/tree/master/src/main/java" + fragment.getSrcName();
                             SourceListing listing = new SourceListing(listingCaption, srcurl, fragment);
                             verticalListings.addComponent(listing);
 

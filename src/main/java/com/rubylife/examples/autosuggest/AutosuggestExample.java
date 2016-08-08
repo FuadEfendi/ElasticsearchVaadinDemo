@@ -7,7 +7,10 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.PropertysetItem;
-import com.vaadin.ui.*;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 import com.zybnet.autocomplete.server.AutocompleteSuggestionPickedListener;
@@ -23,6 +26,9 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
+import org.vaadin.addons.lazyquerycontainer.Query;
+import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
+import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -124,13 +130,8 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     }
     // END-EXAMPLE: autosuggest.city.basic
 
-    // BEGIN-EXAMPLE: autosuggest.city.search
+    // BEGIN-EXAMPLE: autosuggest.city.basicCityList
     public void basicCityList(VerticalLayout layout) throws UnknownHostException {
-        buildTable(layout);
-    }
-    // END-EXAMPLE: autosuggest.city.search
-
-    private void buildTable(Layout layout) {
         final Table table = new Table(null);
         table.setWidth(100, Unit.PERCENTAGE);
         table.setSelectable(true);
@@ -151,8 +152,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                 Object itemId = table.getValue();
                 //BeanItem<City> o = (BeanItem<City>) table.getItem(itemId);
                 // currentBean = o.getBean();
-                //LOG.warn(currentBean.toString());
-                /*
+                /* EXAMPLE:
                  * Component newCrawledContentTabSheet = buildCrawledContentTabSheet();
                  * if (crawledContentTabSheet == null) {
                  * mainLayout.addComponent(newCrawledContentTabSheet);
@@ -167,7 +167,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         layout.addComponent(table);
     }
 
-    public class MyLazyQueryFactory implements org.vaadin.addons.lazyquerycontainer.QueryFactory {
+    public class MyLazyQueryFactory implements QueryFactory {
 
         private org.vaadin.addons.lazyquerycontainer.QueryDefinition queryDefinition;
 
@@ -176,7 +176,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         }
 
         @Override
-        public org.vaadin.addons.lazyquerycontainer.Query constructQuery(org.vaadin.addons.lazyquerycontainer.QueryDefinition queryDefinition) {
+        public Query constructQuery(QueryDefinition queryDefinition) {
             return new MyLazyQuery();
         }
     }
@@ -207,19 +207,17 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
             throw new UnsupportedOperationException();
         }
 
-
         @Override
         public List<Item> loadItems(final int startIndex, final int count) {
             MyUI.getLogger().debug("loadItems() called... startIndex: {}, count: {}", startIndex, count);
-
             if (items.size() == 0) {
                 SearchResponse response = client.prepareSearch("avid3")
-                        .addAggregation(AggregationBuilders.terms("popular_cities").field("locations.city").size(Integer.MAX_VALUE))
+                        .addAggregation(AggregationBuilders.terms("popular_cities").field("locations.city")
+                                .size(Integer.MAX_VALUE))
                         .setSize(0)
                         .execute().actionGet();
                 MyUI.getLogger().debug(response.toString());
                 Terms terms = response.getAggregations().get("popular_cities");
-
                 for (Terms.Bucket bean : terms.getBuckets()) {
                     City city = new City();
                     city.setName(bean.getKeyAsString());
@@ -227,15 +225,11 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                     items.add(new BeanItem<City>(city));
                 }
             }
-
             List<Item> subset = new ArrayList<Item>();
-
             for (int i = startIndex; i < startIndex + count; i++) {
                 subset.add(items.get(i));
             }
-
             return subset;
-
         }
 
         @Override
@@ -248,4 +242,5 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
             return (int) numFound;
         }
     }
+    // END-EXAMPLE: autosuggest.city.basicCityList
 }

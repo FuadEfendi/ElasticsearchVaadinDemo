@@ -58,7 +58,7 @@ public class BookExampleLibrary {
 
     /** Constructor. */
     private BookExampleLibrary(File baseDirectory) {
-        logger.info("book-examples INFO: Loading example data...");
+        logger.info("Loading example data...");
 
         for (BookExample e: getExamples()) {
             e.loadExample(baseDirectory);
