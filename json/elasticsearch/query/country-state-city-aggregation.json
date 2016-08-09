@@ -1,0 +1,27 @@
+{
+  "myCountry" : {
+    "terms" : {
+      "field" : "locations.country",
+      "size" : 10,
+      "min_doc_count" : 10
+    },
+    "aggregations" : {
+      "myState" : {
+        "terms" : {
+          "field" : "locations.state",
+          "size" : 10,
+          "min_doc_count" : 10
+        },
+        "aggregations" : {
+          "myCity" : {
+            "terms" : {
+              "field" : "locations.city",
+              "size" : 10,
+              "min_doc_count" : 10
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "size": 0,
+  "aggs": {
+    "distinct_locations": {
+      "terms": {
+        "script": "doc['locations.country'].value + ' _SEPARATOR_ ' + doc['locations.city'].value",
+        "size": 500
+      }
+    }
+  }
+}

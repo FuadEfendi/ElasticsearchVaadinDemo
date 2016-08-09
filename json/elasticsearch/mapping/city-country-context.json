@@ -1,0 +1,16 @@
+{
+  "city-country-context": {
+    "properties": {
+      "city-country-context-suggest": {
+        "type": "completion",
+        "analyzer": "simple",
+        "search_analyzer": "simple",
+        "context": {
+          "country": {
+            "type": "category"
+          }
+        }
+      }
+    }
+  }
+}

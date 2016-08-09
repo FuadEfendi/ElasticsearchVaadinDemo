@@ -1,3 +1,23 @@
+/*
+ * Licensed to Tokenizer under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Tokenizer licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 package com.rubylife.examples.autosuggest;
 
 import com.rubylife.examples.MyUI;
@@ -6,7 +26,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -22,7 +41,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
@@ -33,6 +51,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AutosuggestExample extends CustomComponent implements AnyBookExampleBundle {
@@ -47,7 +66,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
     private static Client client = null;
 
-    static List<Item> items = new ArrayList<Item>();
+    static int myLazyQueryInstanceCounter = 0;
 
     static {
         try {
@@ -137,14 +156,18 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         table.setSelectable(true);
         table.setImmediate(true);
         table.setNullSelectionAllowed(false);
+        table.setPageLength(25);
+        table.setColumnReorderingAllowed(true);
         MyLazyQueryFactory myLazyQueryFactory = new MyLazyQueryFactory();
-        LazyQueryContainer lazyQueryContainer = new LazyQueryContainer(myLazyQueryFactory, null, 25, false);
-        lazyQueryContainer.addContainerProperty("name", String.class, "", true, false);
-        lazyQueryContainer.addContainerProperty("profileCount", Integer.class, new Integer(0), true, false);
+        LazyQueryContainer lazyQueryContainer = new LazyQueryContainer(myLazyQueryFactory, null, 100, false);
+        lazyQueryContainer.addContainerProperty("name", String.class, "", true, true);
+        lazyQueryContainer.addContainerProperty("profileCount", Integer.class, new Integer(0), true, true);
+        //lazyQueryContainer.addContainerProperty("myField", String.class, null, true, sortable);
         table.setContainerDataSource(lazyQueryContainer);
         table.setVisibleColumns(new String[]{"name", "profileCount"});
         table.setColumnHeaders(new String[]{"City", "Number of profiles"});
         table.addValueChangeListener(new ValueChangeListener() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -167,6 +190,11 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         layout.addComponent(table);
     }
 
+    /**
+     * QueryFactory instantiates new query whenever sort state changes or refresh is requested. Query can construct
+     * for example named JPA query in constructor. Data loading starts by invocation of Query.size() method and after
+     * this data is loaded in batches by invocations of Query.loadItems().
+     */
     public class MyLazyQueryFactory implements QueryFactory {
 
         private org.vaadin.addons.lazyquerycontainer.QueryDefinition queryDefinition;
@@ -177,29 +205,62 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
         @Override
         public Query constructQuery(QueryDefinition queryDefinition) {
-            return new MyLazyQuery();
+            Object property = null;
+            boolean ascending = true;
+            if (queryDefinition.getSortPropertyIds() != null && queryDefinition.getSortPropertyIds().length > 0) {
+                property = queryDefinition.getSortPropertyIds()[0];
+                ascending = queryDefinition.getSortPropertyAscendingStates()[0];
+            }
+            return new MyLazyQuery(property, ascending);
         }
     }
 
     public class MyLazyQuery implements org.vaadin.addons.lazyquerycontainer.Query {
 
-        long numFound = 0;
+        private final List<City> cities = new ArrayList<>();
 
-        public MyLazyQuery() {
+        public MyLazyQuery(Object sortPropertyId, boolean ascending) {
+            MyUI.getLogger().debug("instance {} created", myLazyQueryInstanceCounter++);
+            // Example: count of distinct cities
+//            SearchResponse response = client.prepareSearch("avid3")
+//                    .addAggregation(AggregationBuilders.cardinality("distinct_cities").field("locations.city"))
+//                    .setSize(0)
+//                    .execute().actionGet();
+//            MyUI.getLogger().debug(response.toString());
+//            Cardinality cardinality = response.getAggregations().get("distinct_cities");
+//            numFound = cardinality.getValue();
+//            MyUI.getLogger().debug("numFound: {}", numFound);
+            // TODO: ES 2.3 does not support "pagination" for aggregation queries, so that we load all cities (175000):
             SearchResponse response = client.prepareSearch("avid3")
-                    .addAggregation(AggregationBuilders.cardinality("distinct_cities").field("locations.city"))
+                    .addAggregation(AggregationBuilders.terms("popular_cities").field("locations.city")
+                            .size(Integer.MAX_VALUE))
                     .setSize(0)
                     .execute().actionGet();
-            MyUI.getLogger().debug(response.toString());
-            Cardinality cardinality = response.getAggregations().get("distinct_cities");
-            numFound = cardinality.getValue();
-            MyUI.getLogger().debug("numFound: {}", numFound);
+            MyUI.getLogger().trace(response.toString());
+            Terms terms = response.getAggregations().get("popular_cities");
+            for (Terms.Bucket bean : terms.getBuckets()) {
+                City city = new City();
+                city.setName(bean.getKeyAsString());
+                city.setProfileCount((int) bean.getDocCount());
+                //cities.add(new BeanItem<>(city));
+                cities.add(city);
+            }
+            if (sortPropertyId == null) {
+                // sorting by profile count (default)
+            } else if (sortPropertyId.equals("profileCount") && ascending) {
+                Collections.sort(cities, new City.ProfileCountComparator());
+            } else if (sortPropertyId.equals("profileCount") && !ascending) {
+                Collections.sort(cities, new City.ProfileCountComparatorDescending());
+            } else if (sortPropertyId.equals("name") && ascending) {
+                Collections.sort(cities, new City.NameComparator());
+            } else if (sortPropertyId.equals("name") && !ascending) {
+                Collections.sort(cities, new City.NameComparatorDescending());
+            }
         }
 
         @Override
         public Item constructItem() {
-            PropertysetItem item = new PropertysetItem();
-            return item;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -210,24 +271,9 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         @Override
         public List<Item> loadItems(final int startIndex, final int count) {
             MyUI.getLogger().debug("loadItems() called... startIndex: {}, count: {}", startIndex, count);
-            if (items.size() == 0) {
-                SearchResponse response = client.prepareSearch("avid3")
-                        .addAggregation(AggregationBuilders.terms("popular_cities").field("locations.city")
-                                .size(Integer.MAX_VALUE))
-                        .setSize(0)
-                        .execute().actionGet();
-                MyUI.getLogger().debug(response.toString());
-                Terms terms = response.getAggregations().get("popular_cities");
-                for (Terms.Bucket bean : terms.getBuckets()) {
-                    City city = new City();
-                    city.setName(bean.getKeyAsString());
-                    city.setProfileCount((int) bean.getDocCount());
-                    items.add(new BeanItem<City>(city));
-                }
-            }
-            List<Item> subset = new ArrayList<Item>();
+            List<Item> subset = new ArrayList<>();
             for (int i = startIndex; i < startIndex + count; i++) {
-                subset.add(items.get(i));
+                subset.add(new BeanItem<>(cities.get(i)));
             }
             return subset;
         }
@@ -239,7 +285,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
         @Override
         public int size() {
-            return (int) numFound;
+            return cities.size();
         }
     }
     // END-EXAMPLE: autosuggest.city.basicCityList

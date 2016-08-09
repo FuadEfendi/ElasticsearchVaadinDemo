@@ -1,0 +1,13 @@
+URL to run commands:
+http://10.31.44.227:9200/_plugin/kopf/#!/rest
+
+
+List all indexes:
+/_cat/indices?v
+
+
+List all document types:
+http://localhost:9200/_mapping?pretty=true
+
+
+Note: "Sweden" possibly misspelled; all cities listed twice
