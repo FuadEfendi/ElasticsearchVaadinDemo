@@ -20,35 +20,13 @@ package com.rubylife.examples.autosuggest;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class City implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+/**
+ * Created by fefendi on 2016-08-10.
+ */
+public class Country implements Serializable {
     private String name;
 
-    private String city;
-
-    private String province;
-
-    private String country;
-
     private int profileCount;
-
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 
     public int getProfileCount() {
         return profileCount;
@@ -66,52 +44,30 @@ public class City implements Serializable {
         this.name = name;
     }
 
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    @Override
-    public String toString() {
-        return "City{" +
-                "city='" + city + '\'' +
-                ", province='" + province + '\'' +
-                ", country='" + country + '\'' +
-                ", profileCount=" + profileCount +
-                '}';
-    }
-
-    public static class NameComparator implements Comparator<City> {
-
+    public static class NameComparator implements Comparator<Country> {
         @Override
-        public int compare(City o1, City o2) {
+        public int compare(Country o1, Country o2) {
             return o1.name.compareToIgnoreCase(o2.name);
         }
     }
 
-    public static class NameComparatorDescending implements Comparator<City> {
-
+    public static class NameComparatorDescending implements Comparator<Country> {
         @Override
-        public int compare(City o1, City o2) {
+        public int compare(Country o1, Country o2) {
             return o2.name.compareToIgnoreCase(o1.name);
         }
     }
 
-    public static class ProfileCountComparator implements Comparator<City> {
-
+    public static class ProfileCountComparator implements Comparator<Country> {
         @Override
-        public int compare(City o1, City o2) {
+        public int compare(Country o1, Country o2) {
             return Integer.compare(o1.profileCount, o2.profileCount);
         }
     }
 
-    public static class ProfileCountComparatorDescending implements Comparator<City> {
-
+    public static class ProfileCountComparatorDescending implements Comparator<Country> {
         @Override
-        public int compare(City o1, City o2) {
+        public int compare(Country o1, Country o2) {
             return Integer.compare(o2.profileCount, o1.profileCount);
         }
     }

@@ -1,20 +1,17 @@
 /*
- * Licensed to Tokenizer under one or more contributor
- * license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright
- * ownership. Tokenizer licenses this file to you under
- * the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
+ * Copyright 2016 Fuad Efendi <fuad@efendi.ca>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
@@ -42,6 +39,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.Query;
@@ -215,7 +213,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         }
     }
 
-    public class MyLazyQuery implements org.vaadin.addons.lazyquerycontainer.Query {
+    public class MyLazyQuery implements Query {
 
         private final List<City> cities = new ArrayList<>();
 
@@ -289,4 +287,120 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         }
     }
     // END-EXAMPLE: autosuggest.city.basicCityList
+
+    // BEGIN-EXAMPLE: autosuggest.city.searchCitiesInContextUI
+    public void searchCitiesInContextUI(VerticalLayout layout) throws UnknownHostException {
+        // "Country" field
+        final AutocompleteField<Country> countryField = new AutocompleteField<>();
+        countryField.setDelay(0);
+        countryField.setMinimumQueryCharacters(1);
+        countryField.setWidth("75%");
+        countryField.setQueryListener(new AutocompleteQueryListener<Country>() {
+            @Override
+            public void handleUserQuery(AutocompleteField<Country> field, String query) {
+                try {
+                    List<Country> countries = searchCountries(query);
+                    for (Country c : countries) {
+                        field.addSuggestion(c, c.getName());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        countryField.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<Country>() {
+            @Override
+            public void onSuggestionPicked(Country page) {
+                //createPageButton.setVisible(cities.isEmpty());
+            }
+        });
+        Label countryLabel = new Label("Country:");
+        countryLabel.setWidth("75%");
+        countryLabel.addStyleName("countryField-label");
+        countryField.addStyleName("countryField");
+        layout.addComponents(countryLabel, countryField);
+        // "City" field
+        final AutocompleteField<City> search = new AutocompleteField<>();
+        search.setDelay(0);
+        search.setMinimumQueryCharacters(1);
+        search.setWidth("75%");
+        search.setQueryListener(new AutocompleteQueryListener<City>() {
+            @Override
+            public void handleUserQuery(AutocompleteField<City> field, String query) {
+                try {
+                    List<City> cities = searchCities(query, countryField.getText());
+                    for (City c : cities) {
+                        field.addSuggestion(c, c.getName());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        search.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<City>() {
+            @Override
+            public void onSuggestionPicked(City page) {
+                handleSuggestionSelection(page);
+            }
+        });
+        Label searchLabel = new Label("City:");
+        searchLabel.setWidth("100%");
+        searchLabel.addStyleName("countryField-label");
+        search.addStyleName("countryField");
+        layout.addComponents(searchLabel, search);
+    }
+
+    private List<Country> searchCountries(String prefix) {
+        List<Country> countries = new ArrayList<>();
+        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("country");
+        SuggestResponse suggestResponse = client
+                .prepareSuggest("country")
+                .setSuggestText(prefix)
+                .addSuggestion(completionSuggestionBuilder.field("country").size(5))
+                .execute()
+                .actionGet();
+        Suggest suggest = suggestResponse.getSuggest();
+        Suggest.Suggestion suggestion = suggest.getSuggestion("country");
+        List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
+        for (Suggest.Suggestion.Entry entry : list) {
+            List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
+            for (Suggest.Suggestion.Entry.Option option : options) {
+                Country c = new Country();
+                c.setName(option.getText().toString());
+                countries.add(c);
+            }
+        }
+        return countries;
+    }
+
+    private List<City> searchCities(String prefix, String country) {
+        List<City> cities = new ArrayList<>();
+        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("city");
+        SuggestResponse suggestResponse = client
+                .prepareSuggest("city-province-country")
+                .setSuggestText(prefix)
+                .addSuggestion(completionSuggestionBuilder.field("city").size(10).addContextField("country", country))
+                .execute()
+                .actionGet();
+        Suggest suggest = suggestResponse.getSuggest();
+        MyUI.getLogger().debug("suggest:\n{}", suggest);
+        Suggest.Suggestion suggestion = suggest.getSuggestion("city");
+        List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
+        for (Suggest.Suggestion.Entry entry : list) {
+            List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
+            for (Suggest.Suggestion.Entry.Option option : options) {
+                CompletionSuggestion.Entry.Option o = (CompletionSuggestion.Entry.Option) option;
+                City c = new City();
+                c.setName(o.getText().toString());
+                // TODO: fix indexer; "city" field is not defined in payload
+                c.setCity((String) o.getPayloadAsMap().get("city"));
+                c.setProvince((String) o.getPayloadAsMap().get("province"));
+                c.setCountry((String) o.getPayloadAsMap().get("country"));
+                cities.add(c);
+                MyUI.getLogger().debug(c);
+            }
+        }
+        return cities;
+    }
+    // END-EXAMPLE: autosuggest.city.searchCitiesInContextUI
 }

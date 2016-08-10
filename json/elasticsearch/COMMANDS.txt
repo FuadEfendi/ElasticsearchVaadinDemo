@@ -11,3 +11,14 @@ http://localhost:9200/_mapping?pretty=true
 
 
 Note: "Sweden" possibly misspelled; all cities listed twice
+
+
+
+export HOST_IP=10.31.44.227
+
+curl -XPUT 'http://'$HOST_IP':9200/autocomplete/?pretty' -d '{
+    "settings" : {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1
+    }
+}'

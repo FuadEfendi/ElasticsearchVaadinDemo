@@ -1,20 +1,17 @@
 /*
- * Licensed to Tokenizer under one or more contributor
- * license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright
- * ownership. Tokenizer licenses this file to you under
- * the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
+ * Copyright 2016 Fuad Efendi <fuad@efendi.ca>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
@@ -35,12 +32,12 @@ import java.io.IOException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class CityCountryContextAutosuggestIndexer extends AbstractIndexer {
+public class CityProvinceCountryIndexer extends AbstractIndexer {
 
-    private static final transient Logger logger = LogManager.getLogger(CityCountryContextAutosuggestIndexer.class);
+    private static final transient Logger logger = LogManager.getLogger(CityProvinceCountryIndexer.class);
 
     public static void main(String[] args) {
-        CityCountryContextAutosuggestIndexer o = new CityCountryContextAutosuggestIndexer();
+        CityProvinceCountryIndexer o = new CityProvinceCountryIndexer();
         try {
             o.process();
         } catch (IOException e) {
@@ -48,7 +45,7 @@ public class CityCountryContextAutosuggestIndexer extends AbstractIndexer {
         }
     }
 
-    private CityCountryContextAutosuggestIndexer() {
+    private CityProvinceCountryIndexer() {
         super();
     }
 
@@ -57,6 +54,7 @@ public class CityCountryContextAutosuggestIndexer extends AbstractIndexer {
         int i = 0;
         int j = 0;
         int k = 0;
+        int counter = 0;
         for (Terms.Bucket country : terms.getBuckets()) {
             i++;
             String countryName = country.getKeyAsString();
@@ -76,20 +74,23 @@ public class CityCountryContextAutosuggestIndexer extends AbstractIndexer {
                             String cityName = city.getKeyAsString();
                             if (cityName == null) cityName = "";
                             cityName = cityName.trim();
-                            String suggest = cityName;
-                            if (provinceName.length() > 0) {
-                                suggest = suggest + ", " + provinceName;
-                            }
                             XContentBuilder xb = jsonBuilder()
                                     .startObject()
-                                    .startObject("city-country-context")
-                                    .field("input", suggest)
+                                    .startObject("city")
+                                    .field("input", cityName)
+                                    .field("output", cityName + ", " + (provinceName.length() > 0 ? provinceName + ", " : "") + countryName)
                                     .field("weight", city.getDocCount())
-                                    .startObject("context")
-                                    .field("country", countryName)
-                                    .endObject().endObject().endObject();
-                            logger.debug("indexing document:\n{}", xb.string());
-                            IndexResponse response = client.prepareIndex("autocomplete", "city-country-context", "ccc-" + i + "-" + j + "-" + k).setSource(xb).get();
+                                    .field("payload", jsonBuilder()
+                                            .startObject().field("province", provinceName)
+                                            .field("country", countryName).endObject().string())
+                                    .startObject("context").field("country", countryName).endObject()
+                                    .endObject()
+                                    // stored as a payload:
+                                    //.field("province", provinceName)
+                                    //.field("country", countryName)
+                                    .endObject();
+                            logger.debug("indexing document {}:\n{}", ++counter, xb.string());
+                            IndexResponse response = client.prepareIndex("city-province-country", "city-province-country", "cpc-" + i + "-" + j + "-" + k).setSource(xb).get();
                         }
                     } else {
                         logger.warn("empty list of cities for {} {}", countryName, provinceName);

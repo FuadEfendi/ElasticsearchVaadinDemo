@@ -1,5 +1,0 @@
-Tokenizer
-Copyright 2004-2016 Tokenizer
-
-This product includes software developed by The Apache Software
-Foundation (http://www.apache.org/).

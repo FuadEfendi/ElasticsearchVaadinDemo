@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1,
+      "index.store.type": "mmapfs",
+      "index.translog.flush_threshold_size": "1024mb",
+      "index.translog.flush_threshold_ops": 1000000,
+      "index.translog.flush_threshold_period": "30m",
+      "index.translog.interval": "5m",
+      "index.translog.sync_interval": "5m",
+      "index.translog.durability": "async",
+      "indices.memory.index_buffer_size": "30%"
+    }
+  },
+  "mappings": {
+    "city-province-country": {
+      "properties": {
+        "city": {
+          "type": "completion",
+          "analyzer": "simple",
+          "search_analyzer": "simple",
+          "payloads": true,
+          "context": {
+            "country": {
+              "type": "category"
+            }
+          }
+        }
+      }
+    }
+  }
+}
