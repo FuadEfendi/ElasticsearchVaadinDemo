@@ -38,15 +38,13 @@ import java.io.File;
  * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
  * overridden to add component to the user interface and initialize non-component functionality.
  */
-//@Theme("mytheme")
-@Widgetset("com.rubylife.MyAppWidgetset")
+@Widgetset("ca.fe.MyAppWidgetset")
 @Theme("book-examples")
-@Title("Rubylife UI Examples")
+@Title("Vaadin + Elasticsearch Examples")
 @Push
 public class MyUI extends UI {
 
     private static final transient Logger logger = LogManager.getLogger(MyUI.class);
-
 
     public static final String APPCONTEXT = "";
 
@@ -56,28 +54,16 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-
         logger.info("MaxInactiveInterval " + VaadinSession.getCurrent()
                 .getSession().getMaxInactiveInterval());
-
         File baseDir = VaadinService.getCurrent().getBaseDirectory();
         ExamplesMainLayout mainLayout = new ExamplesMainLayout(
                 BookExampleLibrary.getInstance(baseDir).getAllExamplesList());
         setContent(mainLayout);
-
-
-
-
-
     }
 
-    //@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @WebServlet(value = { "/*", "/VAADIN/*" }, name = "MyUI", asyncSupported = true)
+    @WebServlet(value = {"/*", "/VAADIN/*"}, name = "MyUI", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
     public static class MyUIServlet extends MyCustomServlet {
     }
-
-
-
-
 }
