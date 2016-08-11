@@ -24,4 +24,6 @@
     <inherits name="com.zybnet.autocomplete.AutocompleteWidgetSet" />
 
     <inherits name="app.AppWidgetSet" />
+
+    <inherits name="com.vaadin.addon.charts.Widgetset" />
 </module>

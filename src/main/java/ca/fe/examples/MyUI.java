@@ -39,7 +39,16 @@ import java.io.File;
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Widgetset("ca.fe.MyAppWidgetset")
-@Theme("book-examples")
+/*
+Vaadin currently includes the following built-in themes:
+
+    valo, the default theme since Vaadin 7.3
+    reindeer, the default theme in Vaadin 6 and 7
+    chameleon, an easily customizable theme
+    runo, the default theme in IT Mill Toolkit 5
+    liferay, for Liferay portlets
+ */
+@Theme("elasticsearch-vaadin-demo")
 @Title("Vaadin + Elasticsearch Examples")
 @Push
 public class MyUI extends UI {

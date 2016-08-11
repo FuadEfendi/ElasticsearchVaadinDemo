@@ -24,17 +24,13 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
-/** Source code listing. */
+
 public class SourceListing extends CustomComponent {
-    private static final long serialVersionUID = -1864980807288021761L;
+    private static final long serialVersionUID = 1L;
 
     VerticalLayout layout = new VerticalLayout();
     Label srcview;
     
-    /**
-     * @param caption caption for the source listing box
-     * @param srcCode the source code
-     */
     public SourceListing(String caption, String url, final SourceFragment fragment) {
         setSizeUndefined(); // Layout size is also set with custom setWidth()
 
@@ -78,7 +74,7 @@ public class SourceListing extends CustomComponent {
         layout.setComponentAlignment(mode, Alignment.MIDDLE_RIGHT);
 
         mode.addValueChangeListener(new Property.ValueChangeListener() {
-            private static final long serialVersionUID = 2161991423208388790L;
+            private static final long serialVersionUID = 1L;
 
             public void valueChange(ValueChangeEvent event) {
                 String selected = (String)mode.getValue();

@@ -131,7 +131,7 @@ public class BookExample extends CaptionedExampleItem {
 
         // Load associated CSS
         // TODO Reading it here causes parsing it for every example!
-        String csspath = baseDirectory.toString() + "/VAADIN/themes/book-examples/book-examples.scss";
+        String csspath = baseDirectory.toString() + "/VAADIN/themes/elasticsearch-vaadin-demo/elasticsearch-vaadin-demo.scss";
         File cssfile = new File(csspath);
         FileInputStream cssins;
         try {
@@ -141,7 +141,7 @@ public class BookExample extends CaptionedExampleItem {
             cssFragments = readSourceFromStream(cssins, exampleId, csspath);
             // System.out.println("Read " + cssFragments.size() + " CSS fragments");
         } catch (FileNotFoundException e) {
-            System.err.println("Unable to open book-examples.scss: " + e.getMessage());
+            System.err.println("Unable to open elasticsearch-vaadin-demo.scss: " + e.getMessage());
         }
 
         loaded = true;

@@ -32,7 +32,7 @@
    inkscape:version="0.46"
    sodipodi:docname="checkbox-checked.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/magi/itmill/book-examples/WebContent/VAADIN/themes/book-examples/img/checkbox-checked.png"
+   inkscape:export-filename="/VAADIN/themes/elasticsearch-vaadin-demo/img/checkbox-checked.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -89,14 +89,14 @@
        y="175.57646"
        rx="171.80499"
        ry="0"
-       inkscape:export-filename="/home/magi/itmill/book-examples/WebContent/VAADIN/themes/book-examples/img/checkbox-checked.png"
+       inkscape:export-filename="/VAADIN/themes/elasticsearch-vaadin-demo/img/checkbox-checked.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 128.07006,177.44435 L 139.76092,188.97195"
        id="path3177"
-       inkscape:export-filename="/home/magi/itmill/book-examples/WebContent/VAADIN/themes/book-examples/img/checkbox-checked.png"
+       inkscape:export-filename="/VAADIN/themes/elasticsearch-vaadin-demo/img/checkbox-checked.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        sodipodi:nodetypes="cc" />
@@ -104,7 +104,7 @@
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 128.1332,188.74557 L 139.64548,177.44435"
        id="path3179"
-       inkscape:export-filename="/home/magi/itmill/book-examples/WebContent/VAADIN/themes/book-examples/img/checkbox-checked.png"
+       inkscape:export-filename="/VAADIN/themes/elasticsearch-vaadin-demo/img/checkbox-checked.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        sodipodi:nodetypes="cc" />

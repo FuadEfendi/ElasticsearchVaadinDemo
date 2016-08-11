@@ -18,19 +18,18 @@
 package ca.fe.examples.lib;
 
 
+import ca.fe.examples.MyUI;
 import ca.fe.examples.autosuggest.AutosuggestExample;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 
 public class BookExampleLibrary {
     private static BookExampleLibrary instance = null;
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
-    
+
     /**
      * Gets the Book example library singleton instance.
      * 
@@ -75,14 +74,13 @@ public class BookExampleLibrary {
 
     /** Constructor. */
     private BookExampleLibrary(File baseDirectory) {
-        logger.info("Loading example data...");
+        MyUI.getLogger().info("Loading example data...");
 
         for (BookExample e: getExamples()) {
             e.loadExample(baseDirectory);
-            // BookExamplesUI.getLogger().info("book-examples INFO: " + e.getExampleId());
-        }
+            }
 
-        logger.info("book-examples INFO: Loaded " + getExamples().size() + " examples.");
+        MyUI.getLogger().info("Loaded {} examples.",  getExamples().size() );
     }
 
     final AbstractExampleItem examples[] = {

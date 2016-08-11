@@ -25,64 +25,50 @@ import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 
-/**
- * Advanced menu with accordion.
- * 
- * This implementation can't be used because of Bug #11391.
- * 
- * @author magi
- */
 public class AccordionMenu extends AbstractExampleMenu {
     class TOCTabContent extends CustomComponent {
         public Tree menu;
 
         public TOCTabContent() {
             super();
-
             final Panel scrollpanel = new Panel();
             scrollpanel.addStyleName(Reindeer.PANEL_LIGHT);
             scrollpanel.addStyleName("menuscrollcontent");
             scrollpanel.setSizeFull();
-
             menu.addContainerProperty("caption", String.class, "");
             menu.setItemCaptionMode(ItemCaptionMode.PROPERTY);
             menu.setItemCaptionPropertyId("caption");
             menu.setSizeFull();
             menu.setImmediate(true);
             scrollpanel.setContent(menu);
-
             setCompositionRoot(scrollpanel);
         }
 
         TextField createSearchField() {
             TextField search = new TextField();
             search.addStyleName("searchfield");
-
             // Filter the tree according to typed input
             search.addTextChangeListener(new TextChangeListener() {
-                private static final long serialVersionUID = -3911115489311807856L;
+                private static final long serialVersionUID = 1L;
 
                 SimpleStringFilter filter = null;
 
                 public void textChange(TextChangeEvent event) {
                     Filterable f = (Filterable) menu.getContainerDataSource();
-
                     // Remove old filter
                     if (filter != null)
                         f.removeContainerFilter(filter);
-
                     // Set new filter for the "caption" property
                     filter = new SimpleStringFilter("caption", event.getText(), true, false);
                     f.addContainerFilter(filter);
                 }
             });
-
             return search;
         }
     }
 
     class HistoryTabContent extends CustomComponent {
-        private static final long serialVersionUID = -594165791405599715L;
+        private static final long serialVersionUID = 1L;
 
         public HistoryTabContent() {
             setCompositionRoot(new Label("Not available yet"));
@@ -95,18 +81,14 @@ public class AccordionMenu extends AbstractExampleMenu {
 
     public AccordionMenu(Layout viewLayout, Label exampleTitle) {
         super(viewLayout, exampleTitle);
-
         addStyleName("menupanel");
         setWidth("300px");
         setHeight("100%");
-
         Accordion accordion = new Accordion();
         accordion.setSizeFull();
         setCompositionRoot(accordion);
-
         toctab = new TOCTabContent();
         accordion.addTab(toctab, "Table of Contents");
-
         historytab = new TOCTabContent();
         accordion.addTab(historytab, "Recent Changes");
     }
