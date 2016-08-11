@@ -46,5 +46,5 @@
     -->
     <set-configuration-property name="devModeRedirectEnabled" value="true" />
 
-    <inherits name="com.rubylife.MyAppWidgetset" />
+    <inherits name="ca.fe.MyAppWidgetset" />
 </module>
