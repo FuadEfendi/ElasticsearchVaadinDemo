@@ -17,9 +17,9 @@
 
 package ca.fe.examples.lib;
 
-
 import ca.fe.examples.MyUI;
 import ca.fe.examples.autosuggest.AutosuggestExample;
+import ca.fe.examples.charts.BubbleChartExample;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -89,5 +89,8 @@ public class BookExampleLibrary {
             new BookExample("autosuggest.city.basic", "Basic City Autosuggest", AutosuggestExample.class),
             new BookExample("autosuggest.city.searchCitiesInContextUI", "City Autosuggest with Country Context", AutosuggestExample.class),
             new BookExample("autosuggest.city.basicCityList", "City Profiles Count", AutosuggestExample.class),
+            new ExampleCtgr("charts-", "Vaadin Charts Add-on"),
+            new BookExample("charts.charttype.bubble", "Bubble Chart", BubbleChartExample.class),
+
     };
 }
