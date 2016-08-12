@@ -4,22 +4,22 @@
     "myCountry": {
       "terms": {
         "field": "locations.country",
-        "size": 10,
-        "min_doc_count": 10
+        "size": 0,
+        "min_doc_count": 1
       },
       "aggregations": {
-        "myState": {
+        "gender": {
           "terms": {
-            "field": "locations.state",
-            "size": 10,
-            "min_doc_count": 10
+            "field": "gender",
+            "size": 2,
+            "min_doc_count": 1
           },
           "aggregations": {
-            "myCity": {
+            "myPreferences": {
               "terms": {
-                "field": "locations.city",
-                "size": 10,
-                "min_doc_count": 10
+                "field": "myPreferences",
+                "size": 16,
+                "min_doc_count": 1
               }
             }
           }

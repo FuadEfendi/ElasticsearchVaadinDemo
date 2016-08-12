@@ -19,20 +19,20 @@ package ca.fe.examples.lib;
 
 import ca.fe.examples.MyUI;
 import ca.fe.examples.autosuggest.AutosuggestExample;
-import ca.fe.examples.charts.BubbleChartExample;
+import ca.fe.examples.charts.WorldMapExample;
+import ca.fe.examples.charts.UserPreferencesExample;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class BookExampleLibrary {
     private static BookExampleLibrary instance = null;
 
     /**
      * Gets the Book example library singleton instance.
-     * 
+     *
      * @return the singleton instance
      */
     synchronized public static BookExampleLibrary getInstance(File baseDirectory) {
@@ -43,16 +43,16 @@ public class BookExampleLibrary {
 
     /**
      * Returns all example items, including redirection items.
-     * 
+     *
      * @return array of example objects
      */
     public AbstractExampleItem[] getAllExamples() {
         return examples;
     }
-    
+
     /**
      * Returns all example items, including redirection items.
-     * 
+     *
      * @return list of example objects
      */
     public List<AbstractExampleItem> getAllExamplesList() {
@@ -61,36 +61,37 @@ public class BookExampleLibrary {
 
     /**
      * Returns only actual example objects, no redirection items.
-     * 
+     *
      * @return list of BookExample objects
      */
     public List<BookExample> getExamples() {
         ArrayList<BookExample> exampleList = new ArrayList<BookExample>();
-        for (int i=0; i<examples.length; i++)
+        for (int i = 0; i < examples.length; i++)
             if (examples[i] instanceof BookExample)
-            exampleList.add((BookExample) examples[i]);
+                exampleList.add((BookExample) examples[i]);
         return exampleList;
     }
 
-    /** Constructor. */
+    /**
+     * Constructor.
+     */
     private BookExampleLibrary(File baseDirectory) {
         MyUI.getLogger().info("Loading example data...");
-
-        for (BookExample e: getExamples()) {
+        for (BookExample e : getExamples()) {
             e.loadExample(baseDirectory);
-            }
-
-        MyUI.getLogger().info("Loaded {} examples.",  getExamples().size() );
+        }
+        MyUI.getLogger().info("Loaded {} examples.", getExamples().size());
     }
 
     final AbstractExampleItem examples[] = {
-            new ExampleCtgr("autosuggest", "Autosuggest Examples"),
+            new ExampleCtgr("autosuggest", "Autosuggest"),
             new ExampleCtgr("autosuggest.city-", "City Autosuggest"),
             new BookExample("autosuggest.city.basic", "Basic City Autosuggest", AutosuggestExample.class),
             new BookExample("autosuggest.city.searchCitiesInContextUI", "City Autosuggest with Country Context", AutosuggestExample.class),
             new BookExample("autosuggest.city.basicCityList", "City Profiles Count", AutosuggestExample.class),
-            new ExampleCtgr("charts-", "Vaadin Charts Add-on"),
-            new BookExample("charts.charttype.bubble", "Bubble Chart", BubbleChartExample.class),
-
+            new ExampleCtgr("charts", "Charts"),
+            new ExampleCtgr("charts.charttype-", "Basic Aggregations"),
+            new BookExample("charts.charttype.bubble", "World Map", WorldMapExample.class),
+            new BookExample("charts.charttype.pie", "User Preferences", UserPreferencesExample.class),
     };
 }

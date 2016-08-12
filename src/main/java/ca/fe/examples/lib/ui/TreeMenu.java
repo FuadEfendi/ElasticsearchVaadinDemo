@@ -29,7 +29,7 @@ public class TreeMenu extends AbstractExampleMenu {
     public TreeMenu(Layout viewLayout, Label exampleTitle) {
         super(viewLayout, exampleTitle);
         addStyleName("examplemenu");
-        setWidth("400px");
+        setWidth("280px");
         setHeight("100%");
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();

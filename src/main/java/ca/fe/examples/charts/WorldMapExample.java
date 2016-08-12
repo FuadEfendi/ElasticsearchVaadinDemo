@@ -50,10 +50,10 @@ import java.util.Map;
 /**
  * Created by fefendi on 2016-08-11.
  */
-public class BubbleChartExample extends AbstractChartExample {
+public class WorldMapExample extends AbstractChartExample {
     private static final long serialVersionUID = 1L;
 
-    private static final transient Logger logger = LogManager.getLogger(BubbleChartExample.class);
+    private static final transient Logger logger = LogManager.getLogger(WorldMapExample.class);
 
     String context;
 

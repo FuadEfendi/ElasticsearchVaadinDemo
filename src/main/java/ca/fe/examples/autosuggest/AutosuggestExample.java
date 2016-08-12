@@ -82,7 +82,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     public AutosuggestExample() {
     }
 
-    public void basic(VerticalLayout layout)  {
+    public void basic(VerticalLayout layout) {
         final AutocompleteField<City> search = new AutocompleteField<City>();
         search.setDelay(0);
         search.setMinimumQueryCharacters(1);
@@ -148,7 +148,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     // END-EXAMPLE: autosuggest.city.basic
 
     // BEGIN-EXAMPLE: autosuggest.city.basicCityList
-    public void basicCityList(VerticalLayout layout)  {
+    public void basicCityList(VerticalLayout layout) {
         final Table table = new Table(null);
         table.setWidth(100, Unit.PERCENTAGE);
         table.setSelectable(true);
@@ -392,7 +392,6 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                 CompletionSuggestion.Entry.Option o = (CompletionSuggestion.Entry.Option) option;
                 City c = new City();
                 c.setName(o.getText().toString());
-                // TODO: fix indexer; "city" field is not defined in payload
                 c.setCity((String) o.getPayloadAsMap().get("city"));
                 c.setProvince((String) o.getPayloadAsMap().get("province"));
                 c.setCountry((String) o.getPayloadAsMap().get("country"));

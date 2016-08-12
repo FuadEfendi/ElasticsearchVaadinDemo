@@ -88,7 +88,7 @@ public class AccordionMenu extends AbstractExampleMenu {
         accordion.setSizeFull();
         setCompositionRoot(accordion);
         toctab = new TOCTabContent();
-        accordion.addTab(toctab, "Table of Contents");
+        accordion.addTab(toctab, "Examples");
         historytab = new TOCTabContent();
         accordion.addTab(historytab, "Recent Changes");
     }
