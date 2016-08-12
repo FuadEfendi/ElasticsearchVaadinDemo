@@ -43,7 +43,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,10 +80,8 @@ public class BubbleChartExample extends AbstractChartExample {
         chart.setHeight("350px");
         Configuration conf = chart.getConfiguration();
         conf.setTitle("Distribution of Users by Country");
-        conf.getLegend().setEnabled(false); // Disable legend
-        conf.getTooltip().setFormatter("this.point.name + ': ' + " +
-                "Math.round(this.point.z * 100000) + " +
-                "' profiles'");
+        conf.getLegend().setEnabled(false);
+        conf.getTooltip().setFormatter("this.point.name + ': ' + Math.round(this.point.z * this.point.z) + ' profiles'");
         // World map as background
         String url =
                 VaadinServlet.getCurrent().getServletContext().getContextPath() +
@@ -101,23 +98,19 @@ public class BubbleChartExample extends AbstractChartExample {
         conf.setPlotOptions(plotOptions);
         DataSeries series = new DataSeries("Countries");
         List<Bucket> buckets = searchCountries();
-        List<Object[]> dataset = new ArrayList<>();
         for (Bucket bucket : buckets) {
             String country = bucket.getKeyAsString();
             long count = bucket.getDocCount();
             Coordinate pos = getCountryCoordinates(country);
-            if (pos == null) logger.warn("country coordinates not found: {}", country);
-            else dataset.add(new Object[]{country, count});
-        }
-        for (Object[] country : dataset) {
-            String name = (String) country[0];
-            long amount = (long) country[1];
-            Coordinate pos = getCountryCoordinates(name);
+            if (pos == null) {
+                logger.warn("country coordinates not found: {}", country);
+                continue;
+            }
             DataSeriesItem3d item = new DataSeriesItem3d();
             item.setX(pos.longitude * Math.cos(pos.latitude / 2.0 * (Math.PI / 160)));
             item.setY(pos.latitude * 1.2);
-            item.setZ(((double) amount) / 100000);
-            item.setName(name);
+            item.setZ(Math.sqrt(count));
+            item.setName(country);
             series.add(item);
         }
         conf.addSeries(series);
