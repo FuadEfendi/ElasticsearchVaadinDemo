@@ -42,31 +42,31 @@ import java.util.List;
 /**
  * Created by fefendi on 2016-08-12.
  */
-public class UserPreferencesExample extends AbstractChartExample {
+public class PersonalInterestsExample extends AbstractChartExample {
     private static final long serialVersionUID = 1L;
 
-    private static final transient Logger logger = LogManager.getLogger(UserPreferencesExample.class);
+    private static final transient Logger logger = LogManager.getLogger(PersonalInterestsExample.class);
 
     String context;
 
     public void init(String context) {
         this.context = context;
-        setCompositionRoot(new com.vaadin.ui.Label("Uninitialized"));
+        setCompositionRoot(new Label("Uninitialized"));
     }
 
     @Override
     public void attach() {
         VerticalLayout layout = new VerticalLayout();
-        if ("pie".equals(context))
-            piechart(layout);
+        if ("myPersonalInterests".equals(context))
+            myPersonalInterests(layout);
         else
-            setCompositionRoot(new com.vaadin.ui.Label("Invalid Context"));
+            setCompositionRoot(new Label("Invalid Context"));
         setCompositionRoot(layout);
     }
 
-    // BEGIN-EXAMPLE: charts.charttype.pie
-    private void piechart(VerticalLayout layout) {
-        List<Bucket> buckets = aggregateByCountryAndPreferences();
+    // BEGIN-EXAMPLE: charts.charttype.myPersonalInterests
+    private void myPersonalInterests(VerticalLayout layout) {
+        List<Bucket> buckets = aggregateByCountryAndPersonalInterests();
         for (Bucket b : buckets) {
             String country = b.getKeyAsString().trim();
             if (b == null) country = "<UNKNOWN>";
@@ -95,7 +95,7 @@ public class UserPreferencesExample extends AbstractChartExample {
     }
 
     private void addChart(Layout layout, Bucket b) {
-        Terms preferences = b.getAggregations().get("preferences");
+        Terms preferences = b.getAggregations().get("interests");
         Chart chart = new Chart(ChartType.PIE);
         chart.setWidth("100%");
         chart.setHeight("100%");
@@ -118,7 +118,7 @@ public class UserPreferencesExample extends AbstractChartExample {
         layout.addComponent(chart);
     }
 
-    private List<Bucket> aggregateByCountryAndPreferences() {
+    private List<Bucket> aggregateByCountryAndPersonalInterests() {
         AbstractAggregationBuilder aggregation = AggregationBuilders
                 .terms("countries")
                 .field("locations.country")
@@ -127,8 +127,8 @@ public class UserPreferencesExample extends AbstractChartExample {
                 .subAggregation(
                         AggregationBuilders.terms("genders").field("gender").minDocCount(1).size(2)
                                 .subAggregation(
-                                        AggregationBuilders.terms("preferences").field("myPreferences")
-                                                .minDocCount(1).size(16)));
+                                        AggregationBuilders.terms("interests").field("myPersonalInterests")
+                                                .minDocCount(1).size(0)));
         SearchResponse response = client
                 .prepareSearch()
                 .setIndices("avid3")

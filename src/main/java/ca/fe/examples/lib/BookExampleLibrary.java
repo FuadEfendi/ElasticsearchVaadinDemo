@@ -19,8 +19,9 @@ package ca.fe.examples.lib;
 
 import ca.fe.examples.MyUI;
 import ca.fe.examples.autosuggest.AutosuggestExample;
-import ca.fe.examples.charts.WorldMapExample;
+import ca.fe.examples.charts.PersonalInterestsExample;
 import ca.fe.examples.charts.UserPreferencesExample;
+import ca.fe.examples.charts.WorldMapExample;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,5 +94,8 @@ public class BookExampleLibrary {
             new ExampleCtgr("charts.charttype-", "Basic Aggregations"),
             new BookExample("charts.charttype.bubble", "World Map", WorldMapExample.class),
             new BookExample("charts.charttype.pie", "User Preferences", UserPreferencesExample.class),
+            new BookExample("charts.charttype.myPersonalInterests", "Personal Interests", PersonalInterestsExample.class),
+
+
     };
 }

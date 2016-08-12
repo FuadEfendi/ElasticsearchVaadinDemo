@@ -36,7 +36,7 @@ public class TreeMenu extends AbstractExampleMenu {
         //Image logo = new Image(null, new ThemeResource("img/tokenizer-logo.png"));
         //logo.addStyleName("vaadinlogo");
         //content.addComponent(logo);
-        Panel scrollpanel = new Panel("Table of Contents");
+        Panel scrollpanel = new Panel("Examples");
         scrollpanel.setSizeFull();
         scrollpanel.addStyleName(Reindeer.PANEL_LIGHT);
         scrollpanel.addStyleName("menupanel");
