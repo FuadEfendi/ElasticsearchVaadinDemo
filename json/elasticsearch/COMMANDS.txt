@@ -22,3 +22,364 @@ curl -XPUT 'http://'$HOST_IP':9200/autocomplete/?pretty' -d '{
         "number_of_replicas" : 1
     }
 }'
+
+
+
+curl -XPUT 'http://localhost:9200/autocomplete/?pretty' -d '{
+  "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1,
+      "index.store.type": "mmapfs"
+  },
+  "mappings": {
+    "city-province-country": {
+      "properties": {
+        "city": {
+          "type": "completion",
+          "analyzer": "simple",
+          "search_analyzer": "simple",
+          "context": {
+            "country": {
+              "type": "category"
+            }
+          }
+        }
+      }
+    }
+  }
+}'
+
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
+
+curl -XPUT 'localhost:9200/test002?pretty' -d'
+{
+  "mappings": {
+    "city": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "geonameid": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "name_suggest": {
+          "type": "completion"
+        },
+        "asciiname": {
+          "type": "keyword"
+        },
+        "alternatenames": {
+          "type": "keyword"
+        },
+        "latitude": {
+          "type": "keyword"
+        },
+        "longitude": {
+          "type": "keyword"
+        },
+        "featureClass": {
+          "type": "keyword"
+        },
+        "featureCode": {
+          "type": "keyword"
+        },
+        "countryCode": {
+          "type": "keyword"
+        },
+        "cc2": {
+          "type": "keyword"
+        },
+        "admin1Code": {
+          "type": "keyword"
+        },
+        "admin2Code": {
+          "type": "keyword"
+        },
+        "admin3Code": {
+          "type": "keyword"
+        },
+        "admin4Code": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "elevation": {
+          "type": "keyword"
+        },
+        "dem": {
+          "type": "keyword"
+        },
+        "timezone": {
+          "type": "keyword"
+        },
+        "modificationDate": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
+'
+
+
+
+
+curl -XPUT 'localhost:9200/test004?pretty' -d'
+{
+  "mappings": {
+    "GeoNames": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "geonameid": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "name_suggest": {
+          "type": "completion"
+        },
+        "asciiname": {
+          "type": "keyword"
+        },
+        "alternatenames": {
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "featureClass": {
+          "type": "keyword"
+        },
+        "featureCode": {
+          "type": "keyword"
+        },
+        "countryCode": {
+          "type": "keyword"
+        },
+        "cc2": {
+          "type": "keyword"
+        },
+        "admin1Code": {
+          "type": "keyword"
+        },
+        "admin2Code": {
+          "type": "keyword"
+        },
+        "admin3Code": {
+          "type": "keyword"
+        },
+        "admin4Code": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "elevation": {
+          "type": "keyword"
+        },
+        "dem": {
+          "type": "keyword"
+        },
+        "timezone": {
+          "type": "keyword"
+        },
+        "modificationDate": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
+'
+
+
+
+Query:
+curl -XPOST 'localhost:9200/test004/_suggest?pretty' -d'
+{
+    "foo" : {
+      "prefix" : "t",
+      "completion" : {
+        "field" : "name_suggest"
+      }
+  }
+}'
+
+
+curl -XGET 'http://localhost:9200/_search?pretty&size=0' -d '
+{
+    "query": {
+    	"term" : {  }
+    }
+}'
+
+
+
+curl -XPUT 'localhost:9200/country-003?pretty' -d'
+{
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "mappings": {
+    "CountryNames": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "iso": {
+          "type": "keyword"
+        },
+        "iso3": {
+          "type": "keyword"
+        },
+        "isoNumeric": {
+          "type": "keyword"
+        },
+        "fips": {
+          "type": "keyword"
+        },
+        "country": {
+          "type": "keyword"
+        },
+        "country_suggest": {
+          "type": "completion"
+        },
+        "capital": {
+          "type": "keyword"
+        },
+        "areaSqKm": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "continent": {
+          "type": "keyword"
+        },
+        "tld": {
+          "type": "keyword"
+        },
+        "currencyCode": {
+          "type": "keyword"
+        },
+        "currencyName": {
+          "type": "keyword"
+        },
+        "phone": {
+          "type": "keyword"
+        },
+        "postalCodeFormat": {
+          "type": "keyword"
+        },
+        "postalCodeRegex": {
+          "type": "keyword"
+        },
+        "languages": {
+          "type": "keyword"
+        },
+        "geonameid": {
+          "type": "keyword"
+        },
+        "neighbours": {
+          "type": "keyword"
+        },
+        "equivalentFipsCode": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}'
+
+
+
+
+curl -XPUT 'localhost:9200/cities-002?pretty' -d'
+{
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "mappings": {
+    "city": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "geonameid": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "name_suggest": {
+          "type": "completion",
+          "contexts": [
+            {
+              "name": "countryCode_context",
+              "type": "category",
+              /*If path is defined then the categories are read
+              from that path in the document, otherwise they must be sent in the suggest field */
+              "path": "countryCode"
+            }
+          ]
+        },
+        "asciiname": {
+          "type": "keyword"
+        },
+        "alternatenames": {
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "featureClass": {
+          "type": "keyword"
+        },
+        "featureCode": {
+          "type": "keyword"
+        },
+        "countryCode": {
+          "type": "keyword"
+        },
+        "cc2": {
+          "type": "keyword"
+        },
+        "admin1Code": {
+          "type": "keyword"
+        },
+        "admin2Code": {
+          "type": "keyword"
+        },
+        "admin3Code": {
+          "type": "keyword"
+        },
+        "admin4Code": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "elevation": {
+          "type": "keyword"
+        },
+        "dem": {
+          "type": "keyword"
+        },
+        "timezone": {
+          "type": "keyword"
+        },
+        "modificationDate": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}'

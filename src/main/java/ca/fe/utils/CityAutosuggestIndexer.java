@@ -35,6 +35,7 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -68,9 +69,14 @@ public class CityAutosuggestIndexer {
 	}
 
 	private CityAutosuggestIndexer() {
-		Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+		Settings settings = Settings.builder()
+				.put("cluster.name", "elasticsearch")
+				.put("client.transport.sniff", true)
+				.build();
 		try {
-			client = TransportClient.builder().settings(settings).build().addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
+			client = new PreBuiltTransportClient(settings)
+					.addTransportAddress(
+							new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
 		} catch (UnknownHostException e) {
 			throw new RuntimeException(e);
 		}

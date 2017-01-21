@@ -1,0 +1,74 @@
+{
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "mappings": {
+    "CountryNames": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "iso": {
+          "type": "keyword"
+        },
+        "iso3": {
+          "type": "keyword"
+        },
+        "isoNumeric": {
+          "type": "keyword"
+        },
+        "fips": {
+          "type": "keyword"
+        },
+        "country": {
+          "type": "keyword"
+        },
+        "country_suggest": {
+          "type": "completion"
+        },
+        "capital": {
+          "type": "keyword"
+        },
+        "areaSqKm": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "continent": {
+          "type": "keyword"
+        },
+        "tld": {
+          "type": "keyword"
+        },
+        "currencyCode": {
+          "type": "keyword"
+        },
+        "currencyName": {
+          "type": "keyword"
+        },
+        "phone": {
+          "type": "keyword"
+        },
+        "postalCodeFormat": {
+          "type": "keyword"
+        },
+        "postalCodeRegex": {
+          "type": "keyword"
+        },
+        "languages": {
+          "type": "keyword"
+        },
+        "geonameid": {
+          "type": "keyword"
+        },
+        "neighbours": {
+          "type": "keyword"
+        },
+        "equivalentFipsCode": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

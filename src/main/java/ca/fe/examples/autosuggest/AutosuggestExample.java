@@ -30,17 +30,20 @@ import com.vaadin.ui.VerticalLayout;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 import com.zybnet.autocomplete.server.AutocompleteSuggestionPickedListener;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder.Contexts2x;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.Query;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
@@ -56,31 +59,28 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
     private static final long serialVersionUID = 1L;
 
+    private String indexName = "autocomplete";
+
     // BEGIN-EXAMPLE: autosuggest.city.basic
-    private static Settings settings = Settings.settingsBuilder()
+    private static Settings settings = Settings.builder()
             .put("cluster.name", "elasticsearch")
             .put("client.transport.sniff", true)
             .build();
 
-    private static Client client = null;
+    private Client client = null;
 
     static int myLazyQueryInstanceCounter = 0;
 
-    static {
+    public AutosuggestExample() {
         try {
-            client = TransportClient
-                    .builder()
-                    .settings(settings)
-                    .build()
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(
+                            new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
         } catch (UnknownHostException e) {
             new RuntimeException(e);
         }
     }
     // END-EXAMPLE: autosuggest.city.basic
-
-    public AutosuggestExample() {
-    }
 
     public void basic(VerticalLayout layout) {
         final AutocompleteField<City> search = new AutocompleteField<City>();
@@ -110,32 +110,32 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     }
 
     private void handleSearchQuery(AutocompleteField<City> field, String query) {
-        try {
-            List<String> cities = searchCities(query);
-            //createPageButton.setVisible(cities.isEmpty());
-            for (String c : cities) {
-                City city = new City();
-                city.setName(c);
-                field.addSuggestion(city, city.getName());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        List<String> cities = searchCities(query);
+        //createPageButton.setVisible(cities.isEmpty());
+        if (cities == null) return;
+        for (String c : cities) {
+            City city = new City();
+            city.setName(c);
+            field.addSuggestion(city, city.getName());
         }
     }
 
     // BEGIN-EXAMPLE: autosuggest.city.basic
     private List<String> searchCities(String prefix) {
         List<String> cities = new ArrayList<String>();
-        String suggestionName = "city";
-        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder(suggestionName);
-        SuggestResponse suggestResponse = client
-                .prepareSuggest("autocomplete")
-                .setSuggestText(prefix)
-                .addSuggestion(completionSuggestionBuilder.field("city-suggest").size(10))
-                .execute()
-                .actionGet();
-        Suggest suggest = suggestResponse.getSuggest();
-        Suggest.Suggestion suggestion = suggest.getSuggestion(suggestionName);
+        SearchRequestBuilder srb = client
+                .prepareSearch("test004")
+                .suggest(
+                        new SuggestBuilder()
+                                .addSuggestion(
+                                        "foo",
+                                        SuggestBuilders.completionSuggestion("name_suggest")
+                                                .prefix(prefix)));
+        System.out.println(srb);
+        SearchResponse response = srb.get();
+        System.out.println(response);
+        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("foo");
+        if (suggestion == null) return null;
         List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
         for (Suggest.Suggestion.Entry entry : list) {
             List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
@@ -352,15 +352,19 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
     private List<Country> searchCountries(String prefix) {
         List<Country> countries = new ArrayList<>();
-        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("country");
-        SuggestResponse suggestResponse = client
-                .prepareSuggest("country")
-                .setSuggestText(prefix)
-                .addSuggestion(completionSuggestionBuilder.field("country").size(5))
-                .execute()
-                .actionGet();
-        Suggest suggest = suggestResponse.getSuggest();
-        Suggest.Suggestion suggestion = suggest.getSuggestion("country");
+        SearchRequestBuilder srb = client
+                .prepareSearch("country-003")
+                .suggest(
+                        new SuggestBuilder()
+                                .addSuggestion(
+                                        "foo",
+                                        SuggestBuilders.completionSuggestion("country_suggest")
+                                                .prefix(prefix)));
+        System.out.println(srb);
+        SearchResponse response = srb.get();
+        System.out.println(response);
+        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("foo");
+        if (suggestion == null) return null;
         List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
         for (Suggest.Suggestion.Entry entry : list) {
             List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
@@ -375,16 +379,32 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
 
     private List<City> searchCities(String prefix, String country) {
         List<City> cities = new ArrayList<>();
-        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("city");
-        SuggestResponse suggestResponse = client
-                .prepareSuggest("city-province-country")
-                .setSuggestText(prefix)
-                .addSuggestion(completionSuggestionBuilder.field("city").size(10).addContextField("country", country))
-                .execute()
-                .actionGet();
-        Suggest suggest = suggestResponse.getSuggest();
-        MyUI.getLogger().debug("suggest:\n{}", suggest);
-        Suggest.Suggestion suggestion = suggest.getSuggestion("city");
+        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders.completionSuggestion("city-province-country");
+        completionSuggestionBuilder.text(prefix);
+        Contexts2x c2x = new Contexts2x();
+        c2x.addContextField("country", country);
+        completionSuggestionBuilder.contexts(c2x);
+        completionSuggestionBuilder.size(10);
+        //CategoryContextMapping categoryContextMapping = ContextBuilder.category("myCategoryName").field("country").build();
+        //sb.contexts(categoryContextMapping);
+        SearchResponse response = client
+                .prepareSearch("autocomplete")
+                .suggest(
+                        new SuggestBuilder()
+                                .addSuggestion(
+                                        "foo",
+                                        completionSuggestionBuilder
+                                )).get();
+        MyUI.getLogger().debug("suggest:\n{}", response);
+        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("city");
+//        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("city");
+//        SuggestResponse suggestResponse = client
+//                .prepareSuggest("city-province-country")
+//                .setSuggestText(prefix)
+//                .addSuggestion(completionSuggestionBuilder.field("city").size(10).addContextField("country", country))
+//                .execute()
+//                .actionGet();
+//        Suggest suggest = suggestResponse.getSuggest();
         List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
         for (Suggest.Suggestion.Entry entry : list) {
             List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
@@ -392,9 +412,9 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                 CompletionSuggestion.Entry.Option o = (CompletionSuggestion.Entry.Option) option;
                 City c = new City();
                 c.setName(o.getText().toString());
-                c.setCity((String) o.getPayloadAsMap().get("city"));
-                c.setProvince((String) o.getPayloadAsMap().get("province"));
-                c.setCountry((String) o.getPayloadAsMap().get("country"));
+                //c.setCity((String) o.  .getPayloadAsMap().get("city"));
+                //c.setProvince((String) o.getPayloadAsMap().get("province"));
+                //c.setCountry((String) o.getPayloadAsMap().get("country"));
                 cities.add(c);
                 MyUI.getLogger().debug(c);
             }

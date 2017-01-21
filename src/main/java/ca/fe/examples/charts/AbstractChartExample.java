@@ -23,6 +23,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,7 +35,7 @@ public abstract class AbstractChartExample extends CustomComponent implements Bo
 
     private static final long serialVersionUID = 1L;
 
-    private static Settings settings = Settings.settingsBuilder()
+    private static Settings settings = Settings.builder()
             .put("cluster.name", "elasticsearch")
             .put("client.transport.sniff", true)
             .build();
@@ -45,11 +46,9 @@ public abstract class AbstractChartExample extends CustomComponent implements Bo
 
     static {
         try {
-            client = TransportClient
-                    .builder()
-                    .settings(settings)
-                    .build()
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(
+                            new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
         } catch (UnknownHostException e) {
             new RuntimeException(e);
         }

@@ -46,7 +46,7 @@ public class CityProvinceCountryIndexer extends AbstractIndexer {
     }
 
     private CityProvinceCountryIndexer() {
-        super();
+        super("localhost", 9300);
     }
 
     private void process() throws IOException {

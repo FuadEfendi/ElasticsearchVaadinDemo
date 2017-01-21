@@ -22,9 +22,9 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -43,15 +43,23 @@ public abstract class AbstractIndexer {
     private final String user;
     private final char[] password;
 
-    public AbstractIndexer() {
+
+
+    public AbstractIndexer(String esHost, int esPort) {
+
         this.host = "10.31.44.225";
         this.port = 27017;
         this.user = "dev";
         this.dbname = "profile";
         this.password = "dev1234".toCharArray();
-        Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+        Settings settings = Settings.builder()
+                .put("cluster.name", "elasticsearch")
+                .put("client.transport.sniff", true)
+                .build();
         try {
-            client = TransportClient.builder().settings(settings).build().addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.31.44.227"), 9300));
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(
+                            new InetSocketTransportAddress(InetAddress.getByName(esHost), esPort));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }

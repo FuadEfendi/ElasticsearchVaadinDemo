@@ -1,0 +1,68 @@
+{
+  "mappings": {
+    "city": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "geonameid": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "name_suggest": {
+          "type": "completion"
+        },
+        "asciiname": {
+          "type": "keyword"
+        },
+        "alternatenames": {
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "featureClass": {
+          "type": "keyword"
+        },
+        "featureCode": {
+          "type": "keyword"
+        },
+        "countryCode": {
+          "type": "keyword"
+        },
+        "cc2": {
+          "type": "keyword"
+        },
+        "admin1Code": {
+          "type": "keyword"
+        },
+        "admin2Code": {
+          "type": "keyword"
+        },
+        "admin3Code": {
+          "type": "keyword"
+        },
+        "admin4Code": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "elevation": {
+          "type": "keyword"
+        },
+        "dem": {
+          "type": "keyword"
+        },
+        "timezone": {
+          "type": "keyword"
+        },
+        "modificationDate": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

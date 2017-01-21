@@ -26,12 +26,14 @@
 	<name>elasticsearch-vaadin-demo</name>
 
 	<properties>
-		<autocomplete.version>1.1-SNAPSHOT</autocomplete.version>
-		<es.version>2.3.3</es.version>
+		<autocomplete.version>1.1.1</autocomplete.version>
+		<elasticsearch.version>5.1.2</elasticsearch.version>
 		<log4j.version>2.6.1</log4j.version>
 		<mongodb.version>3.2.2</mongodb.version>
-		<vaadin.version>7.6.8</vaadin.version>
+		<vaadin.version>7.7.6</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+		<vaadin-charts.version>3.2.0</vaadin-charts.version>
+		<vaadin-lazyquerycontainer.version>7.6.1.3</vaadin-lazyquerycontainer.version>
 		<!--<jetty.plugin.version>9.3.10.v20160621</jetty.plugin.version>-->
 		<jetty.plugin.version>9.3.11.v20160721</jetty.plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -69,16 +71,24 @@
 	</dependencyManagement>
 
 	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.8.6</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.vaadin.addons.lazyquerycontainer</groupId>
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
-			<version>7.6.1.4-SNAPSHOT</version>
+			<version>${vaadin-lazyquerycontainer.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.vaadin.addon</groupId>
 			<artifactId>vaadin-charts</artifactId>
-			<version>3.2.0-beta1</version>
+			<version>${vaadin-charts.version}</version>
 		</dependency>
 
 		<dependency>
@@ -97,9 +107,19 @@
 			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>${es.version}</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+			<version>${elasticsearch.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>
@@ -176,7 +196,6 @@
 					<draftCompile>false</draftCompile>
 					<compileReport>false</compileReport>
 					<style>OBF</style>
-					<strict>true</strict>
 				</configuration>
 				<executions>
 					<execution>
