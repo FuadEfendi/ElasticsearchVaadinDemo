@@ -17,6 +17,13 @@
 
 package ca.fe.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * Created by fefendi on 2017-01-18.
  */
@@ -243,27 +250,17 @@ public class GeoName {
 
     @Override
     public String toString() {
-        return new org.apache.commons.lang3.builder.ToStringBuilder(this)
-                .append("geonameid", geonameid)
-                .append("name", name)
-                .append("asciiname", asciiname)
-                .append("alternatenames", alternatenames)
-                .append("latitude", latitude)
-                .append("longitude", longitude)
-                .append("featureClass", featureClass)
-                .append("featureCode", featureCode)
-                .append("countryCode", countryCode)
-                .append("cc2", cc2)
-                .append("admin1Code", admin1Code)
-                .append("admin2Code", admin2Code)
-                .append("admin3Code", admin3Code)
-                .append("admin4Code", admin4Code)
-                .append("population", population)
-                .append("elevation", elevation)
-                .append("dem", dem)
-                .append("timezone", timezone)
-                .append("modificationDate", modificationDate)
-                .toString();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = null;
+        try {
+            json = ow.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            json = sw.toString();
+        }
+        return json;
     }
 }
 

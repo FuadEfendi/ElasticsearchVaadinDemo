@@ -302,13 +302,13 @@ curl -XPUT 'localhost:9200/country-003?pretty' -d'
 
 
 
-curl -XPUT 'localhost:9200/cities-002?pretty' -d'
+curl -XPUT 'localhost:9200/geonames-002?pretty' -d'
 {
   "settings": {
     "index.mapping.ignore_malformed": true
   },
   "mappings": {
-    "city": {
+    "GeoNames": {
       "_all": {
         "enabled": false
       },
@@ -326,7 +326,8 @@ curl -XPUT 'localhost:9200/cities-002?pretty' -d'
               "name": "countryCode_context",
               "type": "category",
               /*If path is defined then the categories are read
-              from that path in the document, otherwise they must be sent in the suggest field */
+              from that path in the document, otherwise they must be
+              sent in the suggest field */
               "path": "countryCode"
             }
           ]
@@ -382,4 +383,5 @@ curl -XPUT 'localhost:9200/cities-002?pretty' -d'
       }
     }
   }
-}'
+}
+'

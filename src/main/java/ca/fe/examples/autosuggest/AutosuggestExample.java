@@ -124,7 +124,7 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     private List<String> searchCities(String prefix) {
         List<String> cities = new ArrayList<String>();
         SearchRequestBuilder srb = client
-                .prepareSearch("test004")
+                .prepareSearch("geonames-002")
                 .suggest(
                         new SuggestBuilder()
                                 .addSuggestion(

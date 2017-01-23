@@ -37,6 +37,8 @@ public class GeonamesIndexer extends AbstractIndexer {
 
     private static final transient Logger logger = LogManager.getLogger(GeonamesIndexer.class);
 
+    private static final String INDEX_NAME = "geonames-002";
+
     public GeonamesIndexer() {
         super("localhost", 9300);
     }
@@ -51,11 +53,11 @@ public class GeonamesIndexer extends AbstractIndexer {
     }
 
     private void readFile() throws IOException {
-        Reader in = new FileReader("/data/download.geonames.org/cities1000.txt");
+        Reader in = new FileReader("/data/download.geonames.org/cities5000.txt");
         Iterable<CSVRecord> records = CSVFormat.TDF.withHeader(Headers.class).withQuote(null).parse(in);
         int i = 0;
         for (CSVRecord record : records) {
-            GeoName gl = new GeoName(
+            GeoName geoname = new GeoName(
                     record.get(Headers.geonameid),
                     record.get(Headers.name),
                     record.get(Headers.asciiname),
@@ -75,13 +77,13 @@ public class GeonamesIndexer extends AbstractIndexer {
                     record.get(Headers.dem),
                     record.get(Headers.timezone),
                     record.get(Headers.modificationDate));
-            //logger.info(gl);
-            int ppl = Integer.parseInt(gl.getPopulation());
-            if ("P".equals(gl.getFeatureClass()) && ppl >= 100000) {
-                System.out.println(gl);
-                index(gl);
+            logger.info(geoname);
+            //int ppl = Integer.parseInt(geoname.getPopulation());
+            //if ("P".equals(geoname.getFeatureClass()) && ppl >= 100000) {
+            //    System.out.println(geoname);
+                index(geoname);
                 i++;
-            }
+            //}
         }
         System.out.println(i + " cities found");
     }
@@ -115,7 +117,7 @@ public class GeonamesIndexer extends AbstractIndexer {
                 .field("modificationDate", d.getModificationDate())
                 .endObject();
         logger.debug("indexing document {}:\n", d);
-        IndexResponse response = client.prepareIndex("test004", "GeoNames", d.getGeonameid()).setSource(xb).get();
+        IndexResponse response = client.prepareIndex(INDEX_NAME, "GeoNames", d.getGeonameid()).setSource(xb).get();
     }
 }
 

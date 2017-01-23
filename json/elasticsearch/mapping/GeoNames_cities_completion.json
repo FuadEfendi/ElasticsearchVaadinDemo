@@ -1,0 +1,81 @@
+{
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "mappings": {
+    "GeoNames": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "geonameid": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "name_suggest": {
+          "type": "completion",
+          "contexts": [
+            {
+              "name": "countryCode_context",
+              "type": "category",
+              /*If path is defined then the categories are read
+              from that path in the document, otherwise they must be
+              sent in the suggest field */
+              "path": "countryCode"
+            }
+          ]
+        },
+        "asciiname": {
+          "type": "keyword"
+        },
+        "alternatenames": {
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "featureClass": {
+          "type": "keyword"
+        },
+        "featureCode": {
+          "type": "keyword"
+        },
+        "countryCode": {
+          "type": "keyword"
+        },
+        "cc2": {
+          "type": "keyword"
+        },
+        "admin1Code": {
+          "type": "keyword"
+        },
+        "admin2Code": {
+          "type": "keyword"
+        },
+        "admin3Code": {
+          "type": "keyword"
+        },
+        "admin4Code": {
+          "type": "keyword"
+        },
+        "population": {
+          "type": "integer"
+        },
+        "elevation": {
+          "type": "keyword"
+        },
+        "dem": {
+          "type": "keyword"
+        },
+        "timezone": {
+          "type": "keyword"
+        },
+        "modificationDate": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
