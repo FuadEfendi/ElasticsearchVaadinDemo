@@ -37,7 +37,7 @@ public class GeonamesIndexer extends AbstractIndexer {
 
     private static final transient Logger logger = LogManager.getLogger(GeonamesIndexer.class);
 
-    private static final String INDEX_NAME = "geonames-002";
+    private static final String INDEX_NAME = "geonames-004";
 
     public GeonamesIndexer() {
         super("localhost", 9300);
@@ -81,8 +81,8 @@ public class GeonamesIndexer extends AbstractIndexer {
             //int ppl = Integer.parseInt(geoname.getPopulation());
             //if ("P".equals(geoname.getFeatureClass()) && ppl >= 100000) {
             //    System.out.println(geoname);
-                index(geoname);
-                i++;
+            index(geoname);
+            i++;
             //}
         }
         System.out.println(i + " cities found");
@@ -97,7 +97,9 @@ public class GeonamesIndexer extends AbstractIndexer {
                 .startObject("name_suggest")
                 .field("input", d.getName())
                 .field("weight", d.getPopulation())
-
+                .startObject("contexts")
+                .field("countryCode_context", d.getCountryCode())
+                .endObject()
                 .endObject()
                 .field("asciiname", d.getAsciiname())
                 .field("alternatenames", d.getAlternatenames())

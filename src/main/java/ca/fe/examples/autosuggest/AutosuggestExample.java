@@ -19,6 +19,8 @@ package ca.fe.examples.autosuggest;
 
 import ca.fe.examples.MyUI;
 import ca.fe.examples.lib.AnyBookExampleBundle;
+import ca.fe.utils.CountryName.CountryHeaders;
+import ca.fe.utils.CountryName;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -357,21 +359,52 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                 .suggest(
                         new SuggestBuilder()
                                 .addSuggestion(
-                                        "foo",
+                                        "myCountrySuggestion",
                                         SuggestBuilders.completionSuggestion("country_suggest")
                                                 .prefix(prefix)));
         System.out.println(srb);
         SearchResponse response = srb.get();
         System.out.println(response);
-        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("foo");
+        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("myCountrySuggestion");
         if (suggestion == null) return null;
         List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
         for (Suggest.Suggestion.Entry entry : list) {
             List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
+
+
+
             for (Suggest.Suggestion.Entry.Option option : options) {
-                Country c = new Country();
-                c.setName(option.getText().toString());
-                countries.add(c);
+
+
+
+  //              CountryName c = new CountryName(
+// ZZZ
+ //               );
+
+                /*
+                record.get(CountryHeaders.ISO),
+                        record.get(CountryHeaders.ISO3),
+                        record.get(CountryHeaders.ISO_Numeric),
+                        record.get(CountryHeaders.fips),
+                        record.get(CountryHeaders.Country),
+                        record.get(CountryHeaders.Capital),
+                        record.get(CountryHeaders.Area_in_sq_km),
+                        record.get(CountryHeaders.Population),
+                        record.get(CountryHeaders.Continent),
+                        record.get(CountryHeaders.tld),
+                        record.get(CountryHeaders.CurrencyCode),
+                        record.get(CountryHeaders.CurrencyName),
+                        record.get(CountryHeaders.Phone),
+                        record.get(CountryHeaders.Postal_Code_Format),
+                        record.get(CountryHeaders.Postal_Code_Regex),
+                        record.get(CountryHeaders.Languages),
+                        record.get(CountryHeaders.geonameid),
+                        record.get(CountryHeaders.neighbours),
+                        record.get(CountryHeaders.EquivalentFipsCode));
+                */
+
+                //c.setName(option.getText().toString());
+                //countries.add(c);
             }
         }
         return countries;

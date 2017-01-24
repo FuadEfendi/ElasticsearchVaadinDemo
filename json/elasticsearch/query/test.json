@@ -1,0 +1,10 @@
+{
+  "suggest": {
+    "foo": {
+      "prefix": "yor",
+      "completion": {
+        "field": "name_suggest"
+      }
+    }
+  }
+}

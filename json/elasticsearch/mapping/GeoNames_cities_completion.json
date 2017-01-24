@@ -19,11 +19,7 @@
           "contexts": [
             {
               "name": "countryCode_context",
-              "type": "category",
-              /*If path is defined then the categories are read
-              from that path in the document, otherwise they must be
-              sent in the suggest field */
-              "path": "countryCode"
+              "type": "category"
             }
           ]
         },

@@ -243,28 +243,6 @@ public class CountryName {
 
     @Override
     public String toString() {
-//        return new ToStringBuilder(this)
-//                .append("iso", iso)
-//                .append("iso3", iso3)
-//                .append("isoNumeric", isoNumeric)
-//                .append("fips", fips)
-//                .append("country", country)
-//                .append("capital", capital)
-//                .append("areaSqKm", areaSqKm)
-//                .append("population", population)
-//                .append("continent", continent)
-//                .append("tld", tld)
-//                .append("currencyCode", currencyCode)
-//                .append("currencyName", currencyName)
-//                .append("phone", phone)
-//                .append("postalCodeFormat", postalCodeFormat)
-//                .append("postalCodeRegex", postalCodeRegex)
-//                .append("languages", languages)
-//                .append("geonameid", geonameid)
-//                .append("neighbours", neighbours)
-//                .append("equivalentFipsCode", equivalentFipsCode)
-//                .toString();
-//
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = null;
         try {
@@ -277,101 +255,102 @@ public class CountryName {
         }
         return json;
     }
+
+    public enum CountryHeaders {
+        /**
+         * ISO
+         */
+        ISO,
+
+        /**
+         * ISO3
+         */
+        ISO3,
+
+        /**
+         * ISO-Numeric
+         */
+        ISO_Numeric,
+
+        /**
+         * fips
+         */
+        fips,
+
+        /**
+         * Country
+         */
+        Country,
+
+        /**
+         * Capital
+         */
+        Capital,
+
+        /**
+         * Area(in sq km)
+         */
+        Area_in_sq_km,
+
+        /**
+         * Population
+         */
+        Population,
+
+        /**
+         * Continent
+         */
+        Continent,
+
+        /**
+         * tld
+         */
+        tld,
+
+        /**
+         * CurrencyCode
+         */
+        CurrencyCode,
+
+        /**
+         * CurrencyName
+         */
+        CurrencyName,
+
+        /**
+         * Phone
+         */
+        Phone,
+
+        /**
+         * Postal Code Format
+         */
+        Postal_Code_Format,
+
+        /**
+         * Postal Code Regex
+         */
+        Postal_Code_Regex,
+
+        /**
+         * Languages
+         */
+        Languages,
+
+        /**
+         * geonameid
+         */
+        geonameid,
+
+        /**
+         * neighbours
+         */
+        neighbours,
+
+        /**
+         * EquivalentFipsCode
+         */
+        EquivalentFipsCode
+    }
 }
 
-enum CountryHeaders {
-    /**
-     * ISO
-     */
-    ISO,
-
-    /**
-     * ISO3
-     */
-    ISO3,
-
-    /**
-     * ISO-Numeric
-     */
-    ISO_Numeric,
-
-    /**
-     * fips
-     */
-    fips,
-
-    /**
-     * Country
-     */
-    Country,
-
-    /**
-     * Capital
-     */
-    Capital,
-
-    /**
-     * Area(in sq km)
-     */
-    Area_in_sq_km,
-
-    /**
-     * Population
-     */
-    Population,
-
-    /**
-     * Continent
-     */
-    Continent,
-
-    /**
-     * tld
-     */
-    tld,
-
-    /**
-     * CurrencyCode
-     */
-    CurrencyCode,
-
-    /**
-     * CurrencyName
-     */
-    CurrencyName,
-
-    /**
-     * Phone
-     */
-    Phone,
-
-    /**
-     * Postal Code Format
-     */
-    Postal_Code_Format,
-
-    /**
-     * Postal Code Regex
-     */
-    Postal_Code_Regex,
-
-    /**
-     * Languages
-     */
-    Languages,
-
-    /**
-     * geonameid
-     */
-    geonameid,
-
-    /**
-     * neighbours
-     */
-    neighbours,
-
-    /**
-     * EquivalentFipsCode
-     */
-    EquivalentFipsCode
-}

@@ -1,0 +1,64 @@
+curl -XPOST 'localhost:9200/geonames-002/_search?pretty' -d'
+{
+  "suggest": {
+    "foo": {
+      "prefix": "yor",
+      "completion": {
+        "field": "name_suggest"
+      }
+    }
+  }
+}'
+
+
+
+For better performance, with "source" disabled:
+See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+
+
+curl -XPOST 'localhost:9200/geonames-002/_search?pretty' -d'
+{
+"_source": false,
+  "suggest": {
+    "foo": {
+      "prefix": "yor",
+      "completion": {
+        "field": "name_suggest"
+      }
+    }
+  }
+}'
+
+
+Search + Context:
+
+curl -XPOST 'localhost:9200/geonames-004/_search?pretty' -d'
+{
+    "suggest" : {
+         "foo": {
+         "prefix" : "tim",
+        "completion" : {
+            "field" : "name_suggest",
+            "size": 10,
+            "contexts": {
+                "countryCode_context": [ "US", "CA" ]
+            }
+        }}
+    }
+}'
+
+
+Search Countries
+
+curl -XPOST 'localhost:9200/country-003/_search?pretty' -d'
+{
+    "_source": true,
+  "suggest": {
+    "foo": {
+      "prefix": "Ca",
+      "completion": {
+        "field": "country_suggest"
+      }
+    }
+  }
+}'
