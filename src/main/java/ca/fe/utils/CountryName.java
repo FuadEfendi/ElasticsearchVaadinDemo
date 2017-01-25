@@ -22,13 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 
 /**
  * Created by fefendi on 2017-01-20. <br/>
  * As per <a href="http://download.geonames.org/export/dump/countryInfo.txt" >http://download.geonames.org/export/dump/countryInfo.txt</a> retrieved on 2017.01.20
  */
-public class CountryName {
+public class CountryName implements Serializable {
     public CountryName(
             String iso,
             String iso3,

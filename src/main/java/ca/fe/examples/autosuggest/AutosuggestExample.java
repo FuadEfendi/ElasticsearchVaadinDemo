@@ -19,8 +19,8 @@ package ca.fe.examples.autosuggest;
 
 import ca.fe.examples.MyUI;
 import ca.fe.examples.lib.AnyBookExampleBundle;
-import ca.fe.utils.CountryName.CountryHeaders;
 import ca.fe.utils.CountryName;
+import ca.fe.utils.GeoName;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -32,19 +32,19 @@ import com.vaadin.ui.VerticalLayout;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 import com.zybnet.autocomplete.server.AutocompleteSuggestionPickedListener;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
-import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder.Contexts2x;
+import org.elasticsearch.search.suggest.completion.context.CategoryQueryContext;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.Query;
@@ -55,13 +55,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AutosuggestExample extends CustomComponent implements AnyBookExampleBundle {
 
     private static final long serialVersionUID = 1L;
 
     private String indexName = "autocomplete";
+
+    private final static String CITY_INDEX = "geonames-004";
 
     // BEGIN-EXAMPLE: autosuggest.city.basic
     private static Settings settings = Settings.builder()
@@ -85,19 +89,19 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     // END-EXAMPLE: autosuggest.city.basic
 
     public void basic(VerticalLayout layout) {
-        final AutocompleteField<City> search = new AutocompleteField<City>();
+        final AutocompleteField<GeoName> search = new AutocompleteField<GeoName>();
         search.setDelay(0);
         search.setMinimumQueryCharacters(1);
         search.setWidth("100%");
-        search.setQueryListener(new AutocompleteQueryListener<City>() {
+        search.setQueryListener(new AutocompleteQueryListener<GeoName>() {
             @Override
-            public void handleUserQuery(AutocompleteField<City> field, String query) {
+            public void handleUserQuery(AutocompleteField<GeoName> field, String query) {
                 handleSearchQuery(field, query);
             }
         });
-        search.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<City>() {
+        search.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<GeoName>() {
             @Override
-            public void onSuggestionPicked(City page) {
+            public void onSuggestionPicked(GeoName page) {
                 handleSuggestionSelection(page);
             }
         });
@@ -108,42 +112,33 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         layout.addComponents(searchLabel, search);
     }
 
-    protected void handleSuggestionSelection(City suggestion) {
+    protected void handleSuggestionSelection(GeoName suggestion) {
     }
 
-    private void handleSearchQuery(AutocompleteField<City> field, String query) {
-        List<String> cities = searchCities(query);
+    private void handleSearchQuery(AutocompleteField<GeoName> field, String query) {
+        List<GeoName> cities = searchCities(query);
         //createPageButton.setVisible(cities.isEmpty());
         if (cities == null) return;
-        for (String c : cities) {
-            City city = new City();
-            city.setName(c);
-            field.addSuggestion(city, city.getName());
+        for (GeoName c : cities) {
+            field.addSuggestion(c, c.getName());
         }
     }
 
     // BEGIN-EXAMPLE: autosuggest.city.basic
-    private List<String> searchCities(String prefix) {
-        List<String> cities = new ArrayList<String>();
-        SearchRequestBuilder srb = client
-                .prepareSearch("geonames-002")
-                .suggest(
-                        new SuggestBuilder()
-                                .addSuggestion(
-                                        "foo",
-                                        SuggestBuilders.completionSuggestion("name_suggest")
-                                                .prefix(prefix)));
-        System.out.println(srb);
-        SearchResponse response = srb.get();
-        System.out.println(response);
-        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("foo");
-        if (suggestion == null) return null;
-        List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
-        for (Suggest.Suggestion.Entry entry : list) {
-            List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
-            for (Suggest.Suggestion.Entry.Option option : options) {
-                cities.add(option.getText().toString());
-            }
+    private List<GeoName> searchCities(String prefix) {
+        List<GeoName> cities = new ArrayList<GeoName>();
+        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders.completionSuggestion("name_suggest").prefix(prefix).size(10);
+        SearchResponse searchResponse = client.prepareSearch(CITY_INDEX).suggest(
+                new SuggestBuilder().addSuggestion("foo", completionSuggestionBuilder)).setFetchSource(true).get();
+        CompletionSuggestion completionSuggestion = searchResponse.getSuggest().getSuggestion("foo");
+        CompletionSuggestion.Entry options = completionSuggestion.getEntries().get(0);
+        for (CompletionSuggestion.Entry.Option option : options) {
+            //cities.add(option.getText().toString());
+            SearchHit hit = option.getHit();
+            Map<String, Object> s = hit.getSource();
+            GeoName city = new GeoName(s);
+            MyUI.getLogger().debug("city suggestion retrieved: \n{}", city);
+            cities.add(city);
         }
         return cities;
     }
@@ -291,29 +286,31 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
     // END-EXAMPLE: autosuggest.city.basicCityList
 
     // BEGIN-EXAMPLE: autosuggest.city.searchCitiesInContextUI
+    private CountryName selectedCountry = null;
+
     public void searchCitiesInContextUI(VerticalLayout layout) {
         // "Country" field
-        final AutocompleteField<Country> countryField = new AutocompleteField<>();
+        final AutocompleteField<CountryName> countryField = new AutocompleteField<>();
         countryField.setDelay(0);
         countryField.setMinimumQueryCharacters(1);
         countryField.setWidth("75%");
-        countryField.setQueryListener(new AutocompleteQueryListener<Country>() {
+        countryField.setQueryListener(new AutocompleteQueryListener<CountryName>() {
             @Override
-            public void handleUserQuery(AutocompleteField<Country> field, String query) {
+            public void handleUserQuery(AutocompleteField<CountryName> field, String query) {
                 try {
-                    List<Country> countries = searchCountries(query);
-                    for (Country c : countries) {
-                        field.addSuggestion(c, c.getName());
+                    List<CountryName> countries = searchCountries(query);
+                    for (CountryName c : countries) {
+                        field.addSuggestion(c, c.getCountry());
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
         });
-        countryField.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<Country>() {
+        countryField.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<CountryName>() {
             @Override
-            public void onSuggestionPicked(Country page) {
-                //createPageButton.setVisible(cities.isEmpty());
+            public void onSuggestionPicked(CountryName cn) {
+                selectedCountry = cn;
             }
         });
         Label countryLabel = new Label("Country:");
@@ -322,16 +319,17 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         countryField.addStyleName("countryField");
         layout.addComponents(countryLabel, countryField);
         // "City" field
-        final AutocompleteField<City> search = new AutocompleteField<>();
+        final AutocompleteField<GeoName> search = new AutocompleteField<>();
         search.setDelay(0);
         search.setMinimumQueryCharacters(1);
         search.setWidth("75%");
-        search.setQueryListener(new AutocompleteQueryListener<City>() {
+        search.setQueryListener(new AutocompleteQueryListener<GeoName>() {
             @Override
-            public void handleUserQuery(AutocompleteField<City> field, String query) {
+            public void handleUserQuery(AutocompleteField<GeoName> field, String query) {
+                if (selectedCountry == null) return;
                 try {
-                    List<City> cities = searchCities(query, countryField.getText());
-                    for (City c : cities) {
+                    List<GeoName> cities = searchCities(query, selectedCountry.getIso());
+                    for (GeoName c : cities) {
                         field.addSuggestion(c, c.getName());
                     }
                 } catch (Exception e) {
@@ -339,9 +337,9 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
                 }
             }
         });
-        search.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<City>() {
+        search.setSuggestionPickedListener(new AutocompleteSuggestionPickedListener<GeoName>() {
             @Override
-            public void onSuggestionPicked(City page) {
+            public void onSuggestionPicked(GeoName page) {
                 handleSuggestionSelection(page);
             }
         });
@@ -352,105 +350,67 @@ public class AutosuggestExample extends CustomComponent implements AnyBookExampl
         layout.addComponents(searchLabel, search);
     }
 
-    private List<Country> searchCountries(String prefix) {
-        List<Country> countries = new ArrayList<>();
-        SearchRequestBuilder srb = client
-                .prepareSearch("country-003")
-                .suggest(
-                        new SuggestBuilder()
-                                .addSuggestion(
-                                        "myCountrySuggestion",
-                                        SuggestBuilders.completionSuggestion("country_suggest")
-                                                .prefix(prefix)));
-        System.out.println(srb);
-        SearchResponse response = srb.get();
-        System.out.println(response);
-        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("myCountrySuggestion");
-        if (suggestion == null) return null;
-        List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
-        for (Suggest.Suggestion.Entry entry : list) {
-            List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
-
-
-
-            for (Suggest.Suggestion.Entry.Option option : options) {
-
-
-
-  //              CountryName c = new CountryName(
-// ZZZ
- //               );
-
-                /*
-                record.get(CountryHeaders.ISO),
-                        record.get(CountryHeaders.ISO3),
-                        record.get(CountryHeaders.ISO_Numeric),
-                        record.get(CountryHeaders.fips),
-                        record.get(CountryHeaders.Country),
-                        record.get(CountryHeaders.Capital),
-                        record.get(CountryHeaders.Area_in_sq_km),
-                        record.get(CountryHeaders.Population),
-                        record.get(CountryHeaders.Continent),
-                        record.get(CountryHeaders.tld),
-                        record.get(CountryHeaders.CurrencyCode),
-                        record.get(CountryHeaders.CurrencyName),
-                        record.get(CountryHeaders.Phone),
-                        record.get(CountryHeaders.Postal_Code_Format),
-                        record.get(CountryHeaders.Postal_Code_Regex),
-                        record.get(CountryHeaders.Languages),
-                        record.get(CountryHeaders.geonameid),
-                        record.get(CountryHeaders.neighbours),
-                        record.get(CountryHeaders.EquivalentFipsCode));
-                */
-
-                //c.setName(option.getText().toString());
-                //countries.add(c);
-            }
+    private List<CountryName> searchCountries(String prefix) {
+        System.out.println("search called with " + prefix);
+        List<CountryName> countries = new ArrayList<>();
+        // following examples at https://github.com/elastic/elasticsearch/blob/master/core/src/test/java/org/elasticsearch/search/suggest/CompletionSuggestSearchIT.java
+        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders.completionSuggestion("country_suggest").prefix(prefix).size(10);
+        SearchResponse searchResponse = client.prepareSearch("country-003").suggest(
+                new SuggestBuilder().addSuggestion("foo", completionSuggestionBuilder)).setFetchSource(true).get();
+        CompletionSuggestion completionSuggestion = searchResponse.getSuggest().getSuggestion("foo");
+        CompletionSuggestion.Entry options = completionSuggestion.getEntries().get(0);
+        for (CompletionSuggestion.Entry.Option option : options) {
+            SearchHit hit = option.getHit();
+            Map<String, Object> s = hit.getSource();
+            CountryName cn = new CountryName(
+                    (String) s.get("iso"),
+                    (String) s.get("iso3"),
+                    (String) s.get("isoNumeric"),
+                    (String) s.get("fips"),
+                    (String) s.get("country"),
+                    (String) s.get("capital"),
+                    (String) s.get("areaSqKm"),
+                    (String) s.get("population"),
+                    (String) s.get("continent"),
+                    (String) s.get("tld"),
+                    (String) s.get("currencyCode"),
+                    (String) s.get("currencyName"),
+                    (String) s.get("phone"),
+                    (String) s.get("postalCodeFormat"),
+                    (String) s.get("postalCodeRegex"),
+                    (String) s.get("languages"),
+                    (String) s.get("geonameid"),
+                    (String) s.get("neighbours"),
+                    (String) s.get("equivalentFipsCode")
+            );
+            countries.add(cn);
         }
         return countries;
     }
 
-    private List<City> searchCities(String prefix, String country) {
-        List<City> cities = new ArrayList<>();
-        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders.completionSuggestion("city-province-country");
-        completionSuggestionBuilder.text(prefix);
-        Contexts2x c2x = new Contexts2x();
-        c2x.addContextField("country", country);
-        completionSuggestionBuilder.contexts(c2x);
-        completionSuggestionBuilder.size(10);
-        //CategoryContextMapping categoryContextMapping = ContextBuilder.category("myCategoryName").field("country").build();
-        //sb.contexts(categoryContextMapping);
-        SearchResponse response = client
-                .prepareSearch("autocomplete")
-                .suggest(
-                        new SuggestBuilder()
-                                .addSuggestion(
-                                        "foo",
-                                        completionSuggestionBuilder
-                                )).get();
-        MyUI.getLogger().debug("suggest:\n{}", response);
-        Suggest.Suggestion suggestion = response.getSuggest().getSuggestion("city");
-//        CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("city");
-//        SuggestResponse suggestResponse = client
-//                .prepareSuggest("city-province-country")
-//                .setSuggestText(prefix)
-//                .addSuggestion(completionSuggestionBuilder.field("city").size(10).addContextField("country", country))
-//                .execute()
-//                .actionGet();
-//        Suggest suggest = suggestResponse.getSuggest();
-        List<Suggest.Suggestion.Entry> list = suggestion.getEntries();
-        for (Suggest.Suggestion.Entry entry : list) {
-            List<Suggest.Suggestion.Entry.Option> options = entry.getOptions();
-            for (Suggest.Suggestion.Entry.Option option : options) {
-                CompletionSuggestion.Entry.Option o = (CompletionSuggestion.Entry.Option) option;
-                City c = new City();
-                c.setName(o.getText().toString());
-                //c.setCity((String) o.  .getPayloadAsMap().get("city"));
-                //c.setProvince((String) o.getPayloadAsMap().get("province"));
-                //c.setCountry((String) o.getPayloadAsMap().get("country"));
-                cities.add(c);
-                MyUI.getLogger().debug(c);
-            }
+    private List<GeoName> searchCities(String prefix, String iso) {
+        MyUI.getLogger().debug("searchCities called: {} {}", prefix, iso);
+        List<GeoName> cities = new ArrayList<GeoName>();
+        Map<String, List<? extends ToXContent>> contextMap = new HashMap<>();
+        List<CategoryQueryContext> contexts = new ArrayList<>();
+        final CategoryQueryContext.Builder builder = CategoryQueryContext.builder();
+        builder.setCategory("countryCode_context");
+        CategoryQueryContext categoryQueryContext = CategoryQueryContext.builder().setCategory(iso).build();
+        List<? extends ToXContent> queryContextValues = Collections.singletonList(categoryQueryContext);
+        Map<String, List<? extends ToXContent>> queryContexts =
+                Collections.singletonMap("countryCode_context", queryContextValues);
+        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders
+                .completionSuggestion("name_suggest").prefix(prefix).size(10).contexts(queryContexts);
+        SearchResponse searchResponse = client.prepareSearch(CITY_INDEX).suggest(
+                new SuggestBuilder().addSuggestion("foo", completionSuggestionBuilder)).setFetchSource(true).get();
+        CompletionSuggestion completionSuggestion = searchResponse.getSuggest().getSuggestion("foo");
+        CompletionSuggestion.Entry options = completionSuggestion.getEntries().get(0);
+        for (CompletionSuggestion.Entry.Option option : options) {
+            SearchHit hit = option.getHit();
+            Map<String, Object> s = hit.getSource();
+            GeoName city = new GeoName(s);
+            MyUI.getLogger().debug("city suggestion retrieved: \n{}", city);
+            cities.add(city);
         }
         return cities;
     }

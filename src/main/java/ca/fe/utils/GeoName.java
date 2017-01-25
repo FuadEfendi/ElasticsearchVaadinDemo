@@ -22,12 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Created by fefendi on 2017-01-18.
  */
-public class GeoName {
+public class GeoName implements Serializable {
 
     /**
      * integer id of record in geonames database
@@ -163,6 +165,30 @@ public class GeoName {
         this.dem = dem;
         this.timezone = timezone;
         this.modificationDate = modificationDate;
+    }
+
+    public GeoName(Map<String, Object> source) {
+        this(
+                (String) source.get("geonameid"),
+                (String) source.get("name"),
+                (String) source.get("asciiname"),
+                (String) source.get("alternatenames"),
+                (String) source.get("latitude"),
+                (String) source.get("longitude"),
+                (String) source.get("featureClass"),
+                (String) source.get("featureCode"),
+                (String) source.get("countryCode"),
+                (String) source.get("cc2"),
+                (String) source.get("admin1Code"),
+                (String) source.get("admin2Code"),
+                (String) source.get("admin3Code"),
+                (String) source.get("admin4Code"),
+                (String) source.get("population"),
+                (String) source.get("elevation"),
+                (String) source.get("dem"),
+                (String) source.get("timezone"),
+                (String) source.get("modificationDate")
+        );
     }
 
     public String getGeonameid() {

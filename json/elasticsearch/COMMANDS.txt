@@ -380,3 +380,22 @@ curl -XPUT 'localhost:9200/geonames-004?pretty' -d'
     }
   }
 }'
+
+
+curl -XPOST 'localhost:9200/country-003/_search?pretty' -d'
+{
+  "_source" : {
+    "includes" : [ ],
+    "excludes" : [ ]
+  },
+  "suggest" : {
+    "foo" : {
+      "prefix" : "u",
+      "completion" : {
+        "field" : "country_suggest",
+        "size" : 10
+      }
+    }
+  },
+  "ext" : { }
+}'
